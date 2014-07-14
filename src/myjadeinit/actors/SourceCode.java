@@ -3,23 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package myjadeinit.behaviours;
+package myjadeinit.actors;
 
-import jade.core.behaviours.Behaviour;
+import jade.core.Agent;
 
 /**
  *
  * @author Desai
  */
-public class RequestSoftSize extends Behaviour {
+public class SourceCode extends Agent {
 
     @Override
-    public void action() {
-    }
-
-    @Override
-    public boolean done() {
-        return false;
+    protected void setup() {
+        System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
     }
 
 }

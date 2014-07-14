@@ -6,8 +6,6 @@
 package myjadeinit.actors;
 
 import jade.core.Agent;
-import jade.core.behaviours.Behaviour;
-import myjadeinit.behaviours.DeveloperBehaviour;
 
 /**
  *
@@ -15,23 +13,10 @@ import myjadeinit.behaviours.DeveloperBehaviour;
  */
 public class Developer extends Agent {
 
-    Behaviour behaviour;
-    
     @Override
     protected void setup() {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
-        behaviour = new DeveloperBehaviour();
-        addBehaviour(behaviour);
-    }
 
-    @Override
-    protected void takeDown() {
-        super.takeDown();
-    }
-
-    @Override
-    public void doDelete() {
-        takeDown();
     }
 
 }

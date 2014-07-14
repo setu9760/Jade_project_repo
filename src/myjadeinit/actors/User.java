@@ -5,15 +5,12 @@
  */
 package myjadeinit.actors;
 
+import jade.core.Agent;
+
 /**
  *
  * @author Desai
  */
-public class User extends SystemOwners {
+public class User extends Agent {
 
-   
-   
-    
-    
-    
 }
