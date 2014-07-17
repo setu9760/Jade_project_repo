@@ -32,10 +32,6 @@ public class Evolve extends Behaviour {
             size.increaseSize();
             System.out.println("Software size is: " + size.getSoftSize());
             evolutionCount--;
-            ACLMessage aclmessage = new ACLMessage(ACLMessage.INFORM);
-            aclmessage.setContent("evolved successfully");
-            aclmessage.addReceiver(new AID("Developer", AID.ISLOCALNAME));
-            myAgent.send(aclmessage);
         }
     }
 

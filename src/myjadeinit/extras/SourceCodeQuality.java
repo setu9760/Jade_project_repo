@@ -5,11 +5,15 @@
  */
 package myjadeinit.extras;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Desai
  */
-public class SourceCodeQuality {
+public class SourceCodeQuality implements Serializable {
+    
+    
 
     private int CodeQuality;
 

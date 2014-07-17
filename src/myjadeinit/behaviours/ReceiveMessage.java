@@ -9,7 +9,13 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
-import myjadeinit.actors.*;
+import java.util.Locale;
+import myjadeinit.actors.Developer;
+import myjadeinit.actors.ProjectManager;
+import myjadeinit.actors.SoftwareSystem;
+import myjadeinit.actors.SourceCode;
+import myjadeinit.actors.SystemOwners;
+import myjadeinit.actors.User;
 import myjadeinit.extras.SourceCodeQuality;
 import myjadeinit.extras.SystemSize;
 
@@ -19,20 +25,48 @@ import myjadeinit.extras.SystemSize;
  */
 public class ReceiveMessage extends CyclicBehaviour {
 
-    /* */
-    public static final String EVOLVE = "evolve";
-    /* */
-    public static final String DEGENERATE = "degenerate";
-    /* */
-    private static final String REFACTOR = "refactor";
-    /* */
-    private static final String REFACTORING_REQUIRED = "Refactoring required";
-    /* */
+    /**
+     */
+    public final String EVOLVE = "evolve";
+    /**
+     */
+    public final String DEGENERATE = "degenerate";
+    /**
+     */
+    private final String REFACTOR = "refactor";
+    /**
+     */
+    private final String DEFACTOR = "defactor";
+    /**
+     */
+    private final String REFACTORING_REQUIRED = "refactoring required";
+    /**
+     */
     private final AID DEFAULT_AID = new AID("ams", AID.ISLOCALNAME);
-    /* */
+    /**
+     */
     private final String DEFAULT_MESSAGE = "This is a default string for the message, null value was passed in the message content";
-    /* */
+    /**
+     */
     private final int DEFAULT_MESSAGE_TYPE = ACLMessage.INFORM;
+    /**
+     */
+    private final Locale locale = Locale.ENGLISH;
+    /**
+     */
+    private final String DEVELOPER_AGENT = "Developer";
+    /**
+     */
+    private final String SYSTEM_AGENT = "System";
+    /**
+     */
+    private final String SOURCECODE_AGENT = "SourceCode";
+    /**
+     */
+    private final String PROJECT_MANAGER_AGENT = "Manager";
+    /**
+     */
+    private final String USER_AGENT = "User";
 
     private ACLMessage aclmessage;
     private String message;
@@ -76,33 +110,53 @@ public class ReceiveMessage extends CyclicBehaviour {
     public void action() {
         aclmessage = myAgent.receive();
         if (aclmessage != null) {
-            message = aclmessage.getContent();
+            message = aclmessage.getContent().toLowerCase(locale);
             printMessage(aclmessage.getSender(), message);
+
             if (myAgent instanceof SoftwareSystem) {
                 switch (message) {
                     case EVOLVE:
                         myAgent.addBehaviour(new Evolve(myAgent, 1, size));
-                        myAgent.addBehaviour(new Defactor(myAgent, SourceCode.codeQuality));
-                        sendMessage(new AID("Developer", AID.ISLOCALNAME), REFACTORING_REQUIRED, ACLMessage.INFORM);
+                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), DEFACTOR, ACLMessage.INFORM);
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), REFACTORING_REQUIRED, ACLMessage.INFORM);
                         break;
                     case DEGENERATE:
                         myAgent.addBehaviour(new Degenarate(myAgent, 1, size));
                         break;
 
                 }
+
             } else if (myAgent instanceof SourceCode) {
-                if (message.equals(REFACTOR)) {
-                    myAgent.addBehaviour(new Refactor(myAgent, codeQuality));
+                switch (message) {
+                    case REFACTOR:
+                        myAgent.addBehaviour(new Refactor(myAgent, codeQuality));
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), "Refactoring done", ACLMessage.INFORM);
+                        break;
+                    case DEFACTOR:
+                        myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
+                        break;
+
                 }
+
             } else if (myAgent instanceof Developer) {
                 switch (message) {
                     case EVOLVE:
-                        sendMessage(new AID("SoftwareSystem", AID.ISLOCALNAME), EVOLVE, ACLMessage.INFORM);
+                        sendMessage(new AID(SYSTEM_AGENT, AID.ISLOCALNAME), EVOLVE, ACLMessage.INFORM);
                         break;
-                    case REFACTORING_REQUIRED:
-                        sendMessage(new AID("SourceCode", AID.ISLOCALNAME), REFACTOR, ACLMessage.INFORM);
+                    case REFACTOR:
+                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), REFACTOR, ACLMessage.INFORM);
                         break;
+
                 }
+            } else if (myAgent instanceof User) {
+                // TODO:
+
+            } else if (myAgent instanceof SystemOwners) {
+                // TODO:
+
+            } else if (myAgent instanceof ProjectManager) {
+                // TODO:
+
             }
 
             // last line of the if block to release the aclmessage object from memory and reuse it again as this class extends CyclicBehaviour.
@@ -122,6 +176,7 @@ public class ReceiveMessage extends CyclicBehaviour {
     public String returnContentMessage() {
         if (aclmessage != null) {
             return message;
+
         }
         return "";
     }
@@ -134,7 +189,7 @@ public class ReceiveMessage extends CyclicBehaviour {
      * @param messageContent content of the message, if null default string is
      * sent
      * @param messageType message type or FIPA performative identifier, if null
-     * then ACLMessage#INFORM performative is applied.
+     * then ACLMessage.INFORM performative is applied.
      *
      */
     private void sendMessage(AID receiver, String messageContent, int messageType) {
@@ -176,5 +231,19 @@ public class ReceiveMessage extends CyclicBehaviour {
             }
         }
         return object;
+    }
+
+    /**
+     * This method is used to send a reply to unknown sender if any of the agent
+     * receives message from unidentified agent.
+     *
+     * @param message
+     */
+    private void defaultReply(ACLMessage message) {
+
+        ACLMessage reply = message.createReply();
+        reply.setPerformative(DEFAULT_MESSAGE_TYPE);
+        reply.setContent("Message received from unknow sender");
+        myAgent.send(reply);
     }
 }

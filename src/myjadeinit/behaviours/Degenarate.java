@@ -35,10 +35,6 @@ public class Degenarate extends Behaviour {
                 size.decreaseSize();
                 System.out.println("Software size is: " + size.getSoftSize());
                 degenarateCounter--;
-                ACLMessage aclmessage = new ACLMessage(ACLMessage.INFORM);
-                aclmessage.setContent("degenerated successfully");
-                aclmessage.addReceiver(new AID("Developer", AID.ISLOCALNAME));
-                myAgent.send(aclmessage);
             }
         }
     }

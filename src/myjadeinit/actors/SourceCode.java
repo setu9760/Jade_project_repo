@@ -15,7 +15,7 @@ import myjadeinit.extras.SourceCodeQuality;
  */
 public class SourceCode extends Agent {
 
-    public static final SourceCodeQuality codeQuality = new SourceCodeQuality(5);
+    private final SourceCodeQuality codeQuality = new SourceCodeQuality(5);
     private ReceiveMessage receiveMesageBehaviour;
 
     @Override

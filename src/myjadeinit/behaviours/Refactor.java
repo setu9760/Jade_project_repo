@@ -30,10 +30,7 @@ public class Refactor extends Behaviour {
         while (!done()) {
             codeQuality.increaseQuality();
             System.out.println("Software code quality is : " + codeQuality.getCodeQuality());
-            ACLMessage aclmessage = new ACLMessage(ACLMessage.INFORM);
-            aclmessage.setContent("Refactoring complete");
-            aclmessage.addReceiver(new AID("Developer", AID.ISLOCALNAME));
-            myAgent.send(aclmessage);
+
             done = true;
         }
     }

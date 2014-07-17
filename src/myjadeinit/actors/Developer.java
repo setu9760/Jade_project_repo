@@ -21,7 +21,6 @@ public class Developer extends Agent {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
         receiveMessageBehaviour = new ReceiveMessage(this);
         addBehaviour(receiveMessageBehaviour);
-
     }
 
 }
