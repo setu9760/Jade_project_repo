@@ -5,11 +5,15 @@
  */
 package myjadeinit.extras;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Desai
  */
-public class SystemSize {
+public class SystemSize implements Serializable {
+
+    private static final long serialVersionUID = 34874925819000L;
 
     private int SoftSize;
 

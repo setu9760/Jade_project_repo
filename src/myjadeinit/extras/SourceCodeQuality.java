@@ -36,7 +36,7 @@ public class SourceCodeQuality {
      * behaviour applied by developer on the Software System.
      */
     public void increaseQuality() {
-        this.CodeQuality += 1;
+        this.CodeQuality += 2;
     }
 
     /**

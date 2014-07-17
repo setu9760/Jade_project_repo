@@ -6,6 +6,7 @@
 package myjadeinit.actors;
 
 import jade.core.Agent;
+import myjadeinit.behaviours.ReceiveMessage;
 
 /**
  *
@@ -13,9 +14,13 @@ import jade.core.Agent;
  */
 public class Developer extends Agent {
 
+    ReceiveMessage receiveMessageBehaviour;
+
     @Override
     protected void setup() {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
+        receiveMessageBehaviour = new ReceiveMessage(this);
+        addBehaviour(receiveMessageBehaviour);
 
     }
 
