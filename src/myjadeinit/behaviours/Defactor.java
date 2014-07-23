@@ -5,8 +5,10 @@
  */
 package myjadeinit.behaviours;
 
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.lang.acl.ACLMessage;
 import myjadeinit.extras.SourceCodeQuality;
 
 /**
@@ -26,7 +28,11 @@ public class Defactor extends Behaviour {
     @Override
     public void action() {
         while (!done()) {
-            if (codeQuality.getCodeQuality() <= 0) {
+            if (codeQuality.getCodeQuality() == 1) {
+                ACLMessage aclMessage = new ACLMessage(ACLMessage.INFORM);
+                aclMessage.addReceiver(new AID("System", AID.ISLOCALNAME));
+                aclMessage.setContent("die");
+                myAgent.send(aclMessage);
                 myAgent.doDelete();
             } else {
                 codeQuality.decreaseQuality();

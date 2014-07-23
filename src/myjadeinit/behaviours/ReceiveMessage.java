@@ -1,15 +1,18 @@
-/*
+/**
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * To change this template file, choose Tools | Templates and open the template
+ * in the editor.
  */
 package myjadeinit.behaviours;
 
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import myjadeinit.actors.Developer;
 import myjadeinit.actors.ProjectManager;
 import myjadeinit.actors.SoftwareSystem;
@@ -42,13 +45,32 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final String REFACTORING_REQUIRED = "refactoring required";
     /**
      */
-    private final AID DEFAULT_AID = new AID("ams", AID.ISLOCALNAME);
+    private final String REQUEST_REQUIREMENT_CHANGE = "change requirement";
+    /**
+     */
+    private final String ACCEPT_REQUIREMENT_CHANGE = "accept requirement change";
+    /**
+     */
+    private final String DECLINE_REQUIREMENT_CHANGE = "decline requirement change";
+    /**
+     */
+    private final String DEFAULT_HELLO = "hello";
+    /**
+     */
+    private final String DIE_MESSAGE = "die";
     /**
      */
     private final String DEFAULT_MESSAGE = "This is a default string for the message, null value was passed in the message content";
     /**
      */
+    private final AID DEFAULT_AID = new AID("ams", AID.ISLOCALNAME);
+
+    /**
+     */
     private final int DEFAULT_MESSAGE_TYPE = ACLMessage.INFORM;
+    /**
+     */
+    private final int REQUEST_MESSAGE_TYPE = ACLMessage.REQUEST;
     /**
      */
     private final Locale locale = Locale.ENGLISH;
@@ -67,6 +89,9 @@ public class ReceiveMessage extends CyclicBehaviour {
     /**
      */
     private final String USER_AGENT = "User";
+    /**
+     */
+    private boolean USER_INIT_DONE = false;
 
     private ACLMessage aclmessage;
     private String message;
@@ -103,11 +128,11 @@ public class ReceiveMessage extends CyclicBehaviour {
      */
     public ReceiveMessage(Agent agent) {
         super(agent);
-
     }
 
     @Override
     public void action() {
+        waitThread();
         aclmessage = myAgent.receive();
         if (aclmessage != null) {
             message = aclmessage.getContent().toLowerCase(locale);
@@ -116,12 +141,19 @@ public class ReceiveMessage extends CyclicBehaviour {
             if (myAgent instanceof SoftwareSystem) {
                 switch (message) {
                     case EVOLVE:
-                        myAgent.addBehaviour(new Evolve(myAgent, 1, size));
-                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), DEFACTOR, ACLMessage.INFORM);
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), REFACTORING_REQUIRED, ACLMessage.INFORM);
+                        myAgent.addBehaviour(new Evolve(myAgent, size));
+                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), DEFACTOR, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), REFACTORING_REQUIRED, DEFAULT_MESSAGE_TYPE);
                         break;
                     case DEGENERATE:
-                        myAgent.addBehaviour(new Degenarate(myAgent, 1, size));
+                        myAgent.addBehaviour(new Degenarate(myAgent, size));
+                        break;
+                    case DIE_MESSAGE:
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(new AID(USER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(new AID(PROJECT_MANAGER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        //sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        myAgent.doSuspend();
                         break;
 
                 }
@@ -130,7 +162,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                 switch (message) {
                     case REFACTOR:
                         myAgent.addBehaviour(new Refactor(myAgent, codeQuality));
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), "Refactoring done", ACLMessage.INFORM);
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), "Refactoring done", DEFAULT_MESSAGE_TYPE);
                         break;
                     case DEFACTOR:
                         myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
@@ -139,31 +171,73 @@ public class ReceiveMessage extends CyclicBehaviour {
                 }
 
             } else if (myAgent instanceof Developer) {
+                //Just casting the agent
+                myAgent = (Developer) myAgent;
                 switch (message) {
                     case EVOLVE:
-                        sendMessage(new AID(SYSTEM_AGENT, AID.ISLOCALNAME), EVOLVE, ACLMessage.INFORM);
+                        sendMessage(new AID(SYSTEM_AGENT, AID.ISLOCALNAME), EVOLVE, DEFAULT_MESSAGE_TYPE);
                         break;
                     case REFACTOR:
-                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), REFACTOR, ACLMessage.INFORM);
+                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), REFACTOR, DEFAULT_MESSAGE_TYPE);
+                        break;
+                    case REQUEST_REQUIREMENT_CHANGE:
+                        //TODO:
+                        break;
+                    case DIE_MESSAGE:
+                        myAgent.doSuspend();
                         break;
 
                 }
             } else if (myAgent instanceof User) {
-                // TODO:
+                //TODO
+                switch (message) {
+                    case DEFAULT_HELLO:
+                        /**
+                         * This case statement adds random change request
+                         * behaviour to the user agent /this will only be done
+                         * once in the complete software evolution process
+                         * model. Refer to {}
+                         */
+                        if (!USER_INIT_DONE) {
+                            myAgent.addBehaviour(new RandomChangeRequest(myAgent));
+                            USER_INIT_DONE = true;
+                        }
+
+                        myAgent.addBehaviour(new RandomChangeRequest(myAgent));
+                        break;
+                    case DIE_MESSAGE:
+                        myAgent.doSuspend();
+                        break;
+
+                }
 
             } else if (myAgent instanceof SystemOwners) {
                 // TODO:
 
             } else if (myAgent instanceof ProjectManager) {
-                // TODO:
+                switch (message) {
+                    case EVOLVE:
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, DEFAULT_MESSAGE_TYPE);
+                        break;
+                    case REQUEST_REQUIREMENT_CHANGE:
+                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
+                        break;
+                    case ACCEPT_REQUIREMENT_CHANGE:
+                        //TODO:
+                        break;
+                    case DECLINE_REQUIREMENT_CHANGE:
+                        //TODO:
+                        break;
+                    case DIE_MESSAGE:
+                        myAgent.doSuspend();
+                        break;
+                }
 
             }
 
             // last line of the if block to release the aclmessage object from memory and reuse it again as this class extends CyclicBehaviour.
             aclmessage = null;
         }
-
-        block();
     }
 
     private void printMessage(AID sender, String message) {
@@ -211,14 +285,14 @@ public class ReceiveMessage extends CyclicBehaviour {
      * object.
      *
      * @param object object that needs to be checked against null.
-     * @param contentNumber the parameter that needs to be tested takes value 1,
-     * 2 or 3.
+     * @param paramNumber the parameter that needs to be tested takes value 1, 2
+     * or 3.
      * @return return default valued object in the object was null or the same
      * object;
      */
-    private Object isNull(Object object, int contentNumber) {
+    private Object isNull(Object object, int paramNumber) {
         if (object == null) {
-            switch (contentNumber) {
+            switch (paramNumber) {
                 case 1:
                     object = (AID) DEFAULT_AID;
                     break;
@@ -245,5 +319,46 @@ public class ReceiveMessage extends CyclicBehaviour {
         reply.setPerformative(DEFAULT_MESSAGE_TYPE);
         reply.setContent("Message received from unknow sender");
         myAgent.send(reply);
+    }
+
+    /**
+     *
+     */
+    private void waitThread() {
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    /**
+     * This is a private inner class to apply a constantly active behaviour to
+     * the user agent, by this behaviour the user agent will keep sending
+     * requirement change request to the project manager every 30 seconds.
+     */
+    private class RandomChangeRequest extends Behaviour {
+
+        public RandomChangeRequest(Agent agent) {
+            super(agent);
+        }
+
+        @Override
+        public void action() {
+            sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, REQUEST_MESSAGE_TYPE);
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        @Override
+        public boolean done() {
+            return false;
+        }
+
     }
 }

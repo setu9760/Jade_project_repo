@@ -5,10 +5,8 @@
  */
 package myjadeinit.behaviours;
 
-import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.lang.acl.ACLMessage;
 import myjadeinit.extras.SystemSize;
 
 /**
@@ -17,13 +15,36 @@ import myjadeinit.extras.SystemSize;
  */
 public class Evolve extends Behaviour {
 
-    private int evolutionCount;
+    private int evoleBy = 1;
     private final SystemSize size;
 
-    public Evolve(Agent agent, int evolutionRate, SystemSize size) {
+    /**
+     * This constructor is mainly used when making normal evolution process to
+     * the software system. This constructor provides determinate evolution rate
+     * for the system as it only evolves the system by one unit.
+     *
+     * @param agent: my agent
+     * @param size: system size parameter
+     */
+    public Evolve(Agent agent, SystemSize size) {
         super(agent);
-        this.evolutionCount = evolutionRate;
         this.size = size;
+    }
+
+    /**
+     * This constructor is used when
+     * {@link myjadeinit.behaviours.RandomEvolution} is applied to the software
+     * system. This constructor provides indeterminate evolution to the software
+     * system.
+     *
+     * @param agent: my agent
+     * @param size: system size parameter
+     * @param evolveBy: random integer 
+     */
+    public Evolve(Agent agent, SystemSize size, int evolveBy) {
+        super(agent);
+        this.size = size;
+        this.evoleBy = evolveBy;
     }
 
     @Override
@@ -31,13 +52,13 @@ public class Evolve extends Behaviour {
         while (done()) {
             size.increaseSize();
             System.out.println("Software size is: " + size.getSoftSize());
-            evolutionCount--;
+            evoleBy--;
         }
     }
 
     @Override
     public boolean done() {
-        return evolutionCount > 0;
+        return evoleBy > 0;
     }
 
 }

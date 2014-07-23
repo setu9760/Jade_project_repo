@@ -12,8 +12,8 @@ import java.io.Serializable;
  * @author Desai
  */
 public class SourceCodeQuality implements Serializable {
-    
-    
+
+    private static final long serialVersionUID = 34874915819000L;
 
     private int CodeQuality;
 
