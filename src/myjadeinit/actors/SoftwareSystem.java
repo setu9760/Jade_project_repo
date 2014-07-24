@@ -19,7 +19,7 @@ public class SoftwareSystem extends Agent {
     private ReceiveMessage receiveMessageBehaviour;
 
     public SoftwareSystem() {
-        this.size = new SystemSize(50);
+        this.size = new SystemSize(100);
     }
 
     @Override

@@ -38,10 +38,13 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final int MIN = 1;
     /**
      */
-    public final String EVOLVE = "evolve";
+    private final String EVOLVE = "evolve";
     /**
      */
-    public final String DEGENERATE = "degenerate";
+    private final String EVOLVE_BY = "evolve by";
+    /**
+     */
+    private final String DEGENERATE = "degenerate";
     /**
      */
     private final String REFACTOR = "refactor";
@@ -66,6 +69,9 @@ public class ReceiveMessage extends CyclicBehaviour {
     /**
      */
     private final String DECLINE_REQUIREMENT_CHANGE = "decline requirement change";
+    /**
+     */
+    private final String MESSAGE_SPLITTER = ",";
     /**
      */
     private final String DEFAULT_HELLO = "hello";
@@ -175,6 +181,16 @@ public class ReceiveMessage extends CyclicBehaviour {
 
             if (myAgent instanceof SoftwareSystem) {
                 myAgent = (SoftwareSystem) myAgent;
+                if (message.contains(EVOLVE_BY)) {
+                    String[] messages = message.split(MESSAGE_SPLITTER);
+                    try {
+                        int evolveBy = Integer.parseInt(messages[1]);
+                        myAgent.addBehaviour(new Evolve(myAgent, size, evolveBy));
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+
+                }
                 switch (message) {
                     case REQUEST_SOFTWARE_SIZE:
                         if (size != null) {
@@ -218,40 +234,45 @@ public class ReceiveMessage extends CyclicBehaviour {
                 //Just casting the agent
                 myAgent = (Developer) myAgent;
                 if (message.contains(RETURN_SOFTWARE_SIZE)) {
-                    String[] messages = message.split(",");
+                    String[] messages = message.split(MESSAGE_SPLITTER);
                     try {
                         int systemSize = Integer.parseInt(messages[1]);
                         message = String.valueOf(systemSize);
-                        sendMessage(SYSTEM_AID, EVOLVE + "," + message, REQUEST_MESSAGE_TYPE);
+                        sendMessage(DEVELOPER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
                     } catch (NumberFormatException e) {
                         e.printStackTrace();
                         System.out.println(messages[1]);
                     }
-                }
-                switch (message) {
-                    case EVOLVE:
-                        sendMessage(SYSTEM_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
-                        break;
-                    case REFACTOR:
-                        sendMessage(SOURCECODE_AID, REFACTOR, DEFAULT_MESSAGE_TYPE);
-                        break;
-                    case REQUEST_REQUIREMENT_CHANGE:
-                        ChangeRequirement change = new ChangeRequirement();
-                        switch (randomizeChangeAcceptance(change.getChangeRequirementSize())) {
-                            case 1:
+                } else {
+                    switch (message) {
+                        case EVOLVE:
+                            sendMessage(SYSTEM_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
+                            break;
+                        case REFACTOR:
+                            sendMessage(SOURCECODE_AID, REFACTOR, DEFAULT_MESSAGE_TYPE);
+                            break;
+                        case REQUEST_REQUIREMENT_CHANGE:
+                            ChangeRequirement change = new ChangeRequirement();
+                            switch (randomizeChangeAcceptance(change.getChangeRequirementSize())) {
+                                case 1:
+                                    System.out.println("change size is :" + change.getChangeRequirementSize());
+                                    System.out.println("change is accepted");
+                                    sendMessage(SYSTEM_AID, EVOLVE_BY + "," + change.getChangeRequirementSize(), REQUEST_MESSAGE_TYPE);
+                                    break;
+                                case 0:
+                                    System.out.println("change size was :" + change.getChangeRequirementSize());
+                                    System.out.println("change is rejected");
+                                    break;
+                            }
 
-                                break;
-                            case 0:
-                                break;
-                        }
+                            break;
+                        case "":
 
-                        break;
-                    case "":
+                        case DIE_MESSAGE:
+                            myAgent.doSuspend();
+                            break;
 
-                    case DIE_MESSAGE:
-                        myAgent.doSuspend();
-                        break;
-
+                    }
                 }
             } else if (myAgent instanceof User) {
                 myAgent = (User) myAgent;
