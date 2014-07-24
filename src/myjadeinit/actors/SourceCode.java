@@ -14,15 +14,19 @@ import myjadeinit.extras.SourceCodeQuality;
  * @author Desai
  */
 public class SourceCode extends Agent {
-
-    private final SourceCodeQuality codeQuality = new SourceCodeQuality(5);
+    
+    private final SourceCodeQuality codeQuality;
     private ReceiveMessage receiveMesageBehaviour;
-
+    
+    public SourceCode() {
+        this.codeQuality = new SourceCodeQuality(50);
+    }
+    
     @Override
     protected void setup() {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
         receiveMesageBehaviour = new ReceiveMessage(this, codeQuality);
         addBehaviour(receiveMesageBehaviour);
     }
-
+    
 }

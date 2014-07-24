@@ -15,8 +15,12 @@ import myjadeinit.extras.SystemSize;
  */
 public class SoftwareSystem extends Agent {
 
-    public final SystemSize size = new SystemSize(5);
+    public final SystemSize size;
     private ReceiveMessage receiveMessageBehaviour;
+
+    public SoftwareSystem() {
+        this.size = new SystemSize(50);
+    }
 
     @Override
     protected void setup() {

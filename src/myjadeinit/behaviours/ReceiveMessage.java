@@ -11,6 +11,7 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import java.util.Locale;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import myjadeinit.actors.Developer;
@@ -19,6 +20,7 @@ import myjadeinit.actors.SoftwareSystem;
 import myjadeinit.actors.SourceCode;
 import myjadeinit.actors.SystemOwners;
 import myjadeinit.actors.User;
+import myjadeinit.extras.ChangeRequirement;
 import myjadeinit.extras.SourceCodeQuality;
 import myjadeinit.extras.SystemSize;
 
@@ -28,6 +30,12 @@ import myjadeinit.extras.SystemSize;
  */
 public class ReceiveMessage extends CyclicBehaviour {
 
+    /**
+     */
+    private final int MAX = 5;
+    /**
+     */
+    private final int MIN = 1;
     /**
      */
     public final String EVOLVE = "evolve";
@@ -43,6 +51,12 @@ public class ReceiveMessage extends CyclicBehaviour {
     /**
      */
     private final String REFACTORING_REQUIRED = "refactoring required";
+    /**
+     */
+    private final String REQUEST_SOFTWARE_SIZE = "request software size";
+    /**
+     */
+    private final String RETURN_SOFTWARE_SIZE = "return software size";
     /**
      */
     private final String REQUEST_REQUIREMENT_CHANGE = "change requirement";
@@ -63,14 +77,16 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final String DEFAULT_MESSAGE = "This is a default string for the message, null value was passed in the message content";
     /**
      */
-    private final AID DEFAULT_AID = new AID("ams", AID.ISLOCALNAME);
-
+    private final String ERROR_MESSAGE = "ERROR!!!!!";
     /**
      */
     private final int DEFAULT_MESSAGE_TYPE = ACLMessage.INFORM;
     /**
      */
     private final int REQUEST_MESSAGE_TYPE = ACLMessage.REQUEST;
+    /**
+     */
+    private final int FAILURE_MESSAGE_TYPE = ACLMessage.FAILURE;
     /**
      */
     private final Locale locale = Locale.ENGLISH;
@@ -85,10 +101,28 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final String SOURCECODE_AGENT = "SourceCode";
     /**
      */
-    private final String PROJECT_MANAGER_AGENT = "Manager";
+    private final String MANAGER_AGENT = "Manager";
     /**
      */
     private final String USER_AGENT = "User";
+    /**
+     */
+    private final AID DEFAULT_AID = new AID("ams", AID.ISLOCALNAME);
+    /**
+     */
+    private final AID DEVELOPER_AID = new AID(DEVELOPER_AGENT, AID.ISLOCALNAME);
+    /**
+     */
+    private final AID SYSTEM_AID = new AID(SYSTEM_AGENT, AID.ISLOCALNAME);
+    /**
+     */
+    private final AID SOURCECODE_AID = new AID(SOURCECODE_AGENT, AID.ISLOCALNAME);
+    /**
+     */
+    private final AID MANAGER_AID = new AID(MANAGER_AGENT, AID.ISLOCALNAME);
+    /**
+     */
+    private final AID USER_AID = new AID(USER_AGENT, AID.ISLOCALNAME);
     /**
      */
     private boolean USER_INIT_DONE = false;
@@ -97,6 +131,7 @@ public class ReceiveMessage extends CyclicBehaviour {
     private String message;
     private SystemSize size;
     private SourceCodeQuality codeQuality;
+    private Random random;
 
     /**
      * This is constructor to be used in the SoftwareSystem agent.
@@ -139,19 +174,27 @@ public class ReceiveMessage extends CyclicBehaviour {
             printMessage(aclmessage.getSender(), message);
 
             if (myAgent instanceof SoftwareSystem) {
+                myAgent = (SoftwareSystem) myAgent;
                 switch (message) {
+                    case REQUEST_SOFTWARE_SIZE:
+                        if (size != null) {
+                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + "," + String.valueOf(size.getSoftSize()), DEFAULT_MESSAGE_TYPE);
+                        } else {
+                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + "," + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
+                        }
+                        break;
                     case EVOLVE:
                         myAgent.addBehaviour(new Evolve(myAgent, size));
-                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), DEFACTOR, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), REFACTORING_REQUIRED, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(SOURCECODE_AID, DEFACTOR, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(DEVELOPER_AID, REFACTORING_REQUIRED, DEFAULT_MESSAGE_TYPE);
                         break;
                     case DEGENERATE:
                         myAgent.addBehaviour(new Degenarate(myAgent, size));
                         break;
                     case DIE_MESSAGE:
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(new AID(USER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(new AID(PROJECT_MANAGER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(DEVELOPER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(USER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(MANAGER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         //sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         myAgent.doSuspend();
                         break;
@@ -159,10 +202,11 @@ public class ReceiveMessage extends CyclicBehaviour {
                 }
 
             } else if (myAgent instanceof SourceCode) {
+                myAgent = (SourceCode) myAgent;
                 switch (message) {
                     case REFACTOR:
                         myAgent.addBehaviour(new Refactor(myAgent, codeQuality));
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), "Refactoring done", DEFAULT_MESSAGE_TYPE);
+                        sendMessage(DEVELOPER_AID, "Refactoring done", DEFAULT_MESSAGE_TYPE);
                         break;
                     case DEFACTOR:
                         myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
@@ -173,37 +217,58 @@ public class ReceiveMessage extends CyclicBehaviour {
             } else if (myAgent instanceof Developer) {
                 //Just casting the agent
                 myAgent = (Developer) myAgent;
+                if (message.contains(RETURN_SOFTWARE_SIZE)) {
+                    String[] messages = message.split(",");
+                    try {
+                        int systemSize = Integer.parseInt(messages[1]);
+                        message = String.valueOf(systemSize);
+                        sendMessage(SYSTEM_AID, EVOLVE + "," + message, REQUEST_MESSAGE_TYPE);
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                        System.out.println(messages[1]);
+                    }
+                }
                 switch (message) {
                     case EVOLVE:
-                        sendMessage(new AID(SYSTEM_AGENT, AID.ISLOCALNAME), EVOLVE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(SYSTEM_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
                         break;
                     case REFACTOR:
-                        sendMessage(new AID(SOURCECODE_AGENT, AID.ISLOCALNAME), REFACTOR, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(SOURCECODE_AID, REFACTOR, DEFAULT_MESSAGE_TYPE);
                         break;
                     case REQUEST_REQUIREMENT_CHANGE:
-                        //TODO:
+                        ChangeRequirement change = new ChangeRequirement();
+                        switch (randomizeChangeAcceptance(change.getChangeRequirementSize())) {
+                            case 1:
+
+                                break;
+                            case 0:
+                                break;
+                        }
+
                         break;
+                    case "":
+
                     case DIE_MESSAGE:
                         myAgent.doSuspend();
                         break;
 
                 }
             } else if (myAgent instanceof User) {
+                myAgent = (User) myAgent;
                 //TODO
                 switch (message) {
                     case DEFAULT_HELLO:
                         /**
-                         * This case statement adds random change request
+                         * This case statement adds continuous change request
                          * behaviour to the user agent /this will only be done
                          * once in the complete software evolution process
                          * model. Refer to {}
                          */
                         if (!USER_INIT_DONE) {
-                            myAgent.addBehaviour(new RandomChangeRequest(myAgent));
+                            myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
                             USER_INIT_DONE = true;
                         }
-
-                        myAgent.addBehaviour(new RandomChangeRequest(myAgent));
+                        myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
                         break;
                     case DIE_MESSAGE:
                         myAgent.doSuspend();
@@ -212,15 +277,17 @@ public class ReceiveMessage extends CyclicBehaviour {
                 }
 
             } else if (myAgent instanceof SystemOwners) {
+                myAgent = (SystemOwners) myAgent;
                 // TODO:
 
             } else if (myAgent instanceof ProjectManager) {
+                myAgent = (ProjectManager) myAgent;
                 switch (message) {
                     case EVOLVE:
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(DEVELOPER_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
                         break;
                     case REQUEST_REQUIREMENT_CHANGE:
-                        sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
+                        sendMessage(DEVELOPER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
                         break;
                     case ACCEPT_REQUIREMENT_CHANGE:
                         //TODO:
@@ -322,10 +389,16 @@ public class ReceiveMessage extends CyclicBehaviour {
     }
 
     /**
-     *
+     * <p>
+     * This method makes the current thread sleep for 15 seconds, this method is
+     * simply used to see the message interaction in real time. in the beginning
+     * of each cyclic behaviour receive message this method is invoked making
+     * the process slow and observable.</p>
+     * <p>
+     * This method does not serve any processing purpose in term of this
+     * project, it can simply be removed if not required</p>
      */
     private void waitThread() {
-
         try {
             Thread.sleep(1500);
         } catch (InterruptedException ex) {
@@ -335,13 +408,80 @@ public class ReceiveMessage extends CyclicBehaviour {
     }
 
     /**
-     * This is a private inner class to apply a constantly active behaviour to
-     * the user agent, by this behaviour the user agent will keep sending
-     * requirement change request to the project manager every 30 seconds.
+     *
+     * @return
      */
-    private class RandomChangeRequest extends Behaviour {
+    private int randomizeChangeAcceptance(int changeRequestSize) {
+        random = new Random();
+        int rand;
+        if (isInBetween(changeRequestSize, 75, 100)) {
+            //If change size is larger then 75 then there are 
+            //20 - 80 chances of it being accepted or rejected.
+            //Because the following random will return value b/w 1 and 5
+            // from which 1 meaning accepante and 2 - 5 for rejection
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+            //TODO: testing the turnery operator for this condition
+            return (rand == 1) ? 1 : 0;
+//            if (rand == 1) {
+//                return 1;
+//            } else {
+//                return 0;
+//            }
+        } else if (isInBetween(changeRequestSize, 25, 75)) {
+            //If the change size is between 25 and 75 then there are 60 - 40
+            // chances of it being accepted or rejected.
+            //Becasue the following random will return values b/w 1 and 5
+            //from which 1, 2, 3 meaning acceptance and 4, 5 for rejection
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+            if (rand == 4 || rand == 5) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else if (isInBetween(changeRequestSize, 0, 25)) {
+            //If change size is less then 25 then there are 80 - 20 
+            // chances of it being accepted and rejected.
+            //Beccause the following will return random b/w 1 and 5
+            //from which 1 -4 meaning acceptance, and 5 for rejection.
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+            //TODO: testing the turnery operator for this condition
+            return (rand == 5) ? 0 : 1;
+//            if (rand == 5) {
+//                return 0;
+//            } else {
+//                return 1;
+//            }
+        }
+        return 0;
+    }
 
-        public RandomChangeRequest(Agent agent) {
+    /**
+     * <p>
+     * This is a method to check if a number is in between two numbers. This is
+     * mainly used in this class to test change request size in if else
+     * condition.</p>
+     *
+     * @param num The number to be tested
+     * @param lowerBoundary the lower boundary (exclusive)
+     * @param higherBoundary the higher boundary (inclusive)
+     * @return true if with in the lower and higher boundary false otherwise.
+     */
+    public boolean isInBetween(int num, int lowerBoundary, int higherBoundary) {
+        return (num > lowerBoundary && num <= higherBoundary);
+    }
+
+    /**
+     * <p>
+     * This is a private inner class to constantly send evolve message from the
+     * user agent, by this behaviour the user agent will keep sending continuous
+     * evolution request to the project manager every 10 seconds.</p>
+     * <p>
+     * Purpose of this class is to make the model dynamic and present it as
+     * continuous circle</p>
+     */
+    private class ContinuousEvolvution extends Behaviour {
+
+        public ContinuousEvolvution(Agent agent) {
             super(agent);
         }
 
@@ -359,6 +499,5 @@ public class ReceiveMessage extends CyclicBehaviour {
         public boolean done() {
             return false;
         }
-
     }
 }

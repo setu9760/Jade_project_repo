@@ -41,7 +41,7 @@ public class Evolve extends Behaviour {
      * @param size: system size parameter
      * @param evolveBy: random integer 
      */
-    public Evolve(Agent agent, SystemSize size, int evolveBy) {
+    private Evolve(Agent agent, SystemSize size, int evolveBy) {
         super(agent);
         this.size = size;
         this.evoleBy = evolveBy;
