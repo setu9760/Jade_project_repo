@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class SourceCodeQuality implements Serializable {
 
-    private static final long serialVersionUID = 34874915819000L;
+    private static final long serialVersionUID = 34874915819050L;
 
     private int CodeQuality;
 

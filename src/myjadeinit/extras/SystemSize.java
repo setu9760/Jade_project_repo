@@ -5,7 +5,17 @@
  */
 package myjadeinit.extras;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  *
@@ -17,12 +27,24 @@ public class SystemSize implements Serializable {
 
     private int SoftSize;
 
-    public SystemSize() {
-        this.SoftSize = 0;
-    }
+    private final String path = "raw/testing.txt";
+    private final File file;
+    private final DateFormat dateFormatter;
 
+    private FileWriter fileWriter;
+    private BufferedWriter bufferedWritter;
+    private Calendar calender;
+
+    /**
+     *
+     * @param SoftSize
+     */
     public SystemSize(int SoftSize) {
         this.SoftSize = SoftSize;
+        dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        file = new File(path);
+        initFile();
+
     }
 
     /**
@@ -45,6 +67,7 @@ public class SystemSize implements Serializable {
      */
     public void increaseSize() {
         this.SoftSize += 1;
+        writeToFile(SoftSize);
     }
 
     /**
@@ -53,6 +76,50 @@ public class SystemSize implements Serializable {
      */
     public void decreaseSize() {
         this.SoftSize -= 1;
+    }
+
+    private void initFile() {
+        if (file.exists()) {
+            try {
+                file.delete();
+                file.createNewFile();
+                fileWriter = new FileWriter(file, true);
+                bufferedWritter = new BufferedWriter(fileWriter);
+                bufferedWritter.append("This file has record of changing Software size over time");
+                bufferedWritter.append(System.lineSeparator());
+                bufferedWritter.append(" Date - Time " + " --- " + " System Size ");
+                bufferedWritter.append(System.lineSeparator());
+            } catch (IOException ex) {
+                Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                try {
+                    bufferedWritter.close();
+                    fileWriter.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        }
+    }
+
+    private void writeToFile(int SoftSize) {
+        calender = Calendar.getInstance();
+        try {
+            fileWriter = new FileWriter(file, true);
+            bufferedWritter = new BufferedWriter(fileWriter);
+            bufferedWritter.append(dateFormatter.format(calender.getTime()) + " --- " + SoftSize);
+            bufferedWritter.append(System.lineSeparator());
+        } catch (IOException ex) {
+            Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                bufferedWritter.close();
+                fileWriter.close();
+            } catch (IOException ex) {
+                Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
 }
