@@ -214,7 +214,6 @@ public class ReceiveMessage extends CyclicBehaviour {
                         //sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         myAgent.doSuspend();
                         break;
-
                 }
 
             } else if (myAgent instanceof SourceCode) {
@@ -227,7 +226,6 @@ public class ReceiveMessage extends CyclicBehaviour {
                     case DEFACTOR:
                         myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
                         break;
-
                 }
 
             } else if (myAgent instanceof Developer) {
@@ -258,6 +256,10 @@ public class ReceiveMessage extends CyclicBehaviour {
                                     System.out.println("change size is :" + change.getChangeRequirementSize());
                                     System.out.println("change is accepted");
                                     sendMessage(SYSTEM_AID, EVOLVE_BY + "," + change.getChangeRequirementSize(), REQUEST_MESSAGE_TYPE);
+                                    //TODO: Apply logic here to send the defactoring message BUT
+                                    //it should be based on the change requirement size. also need 
+                                    //check if the code quality has not reached 0.
+
                                     break;
                                 case 0:
                                     System.out.println("change size was :" + change.getChangeRequirementSize());
@@ -267,16 +269,15 @@ public class ReceiveMessage extends CyclicBehaviour {
 
                             break;
                         case "":
-
+                            //TODO:
+                            break;
                         case DIE_MESSAGE:
                             myAgent.doSuspend();
                             break;
-
                     }
                 }
             } else if (myAgent instanceof User) {
                 myAgent = (User) myAgent;
-                //TODO
                 switch (message) {
                     case DEFAULT_HELLO:
                         /**
@@ -294,12 +295,10 @@ public class ReceiveMessage extends CyclicBehaviour {
                     case DIE_MESSAGE:
                         myAgent.doSuspend();
                         break;
-
                 }
 
             } else if (myAgent instanceof SystemOwners) {
                 myAgent = (SystemOwners) myAgent;
-                // TODO:
 
             } else if (myAgent instanceof ProjectManager) {
                 myAgent = (ProjectManager) myAgent;
@@ -429,8 +428,18 @@ public class ReceiveMessage extends CyclicBehaviour {
     }
 
     /**
+     * <p>
+     * This method randomises the acceptance of the change requirement. This
+     * method works on probability of change being accepted by the developer and
+     * the manager.</p>
+     * <p>
+     * The idea is that the smaller the change there is high probability of it
+     * being accepted and implemented by the programmers and vice versa if the
+     * change is larger. The change requirement size will always very from 1 to
+     * 100 inclusive and will always be randomised which makes this process more
+     * dynamic.</p>
      *
-     * @return
+     * @return 0 for accepting the change and 1 for rejecting it.
      */
     private int randomizeChangeAcceptance(int changeRequestSize) {
         random = new Random();
@@ -441,37 +450,27 @@ public class ReceiveMessage extends CyclicBehaviour {
             //Because the following random will return value b/w 1 and 5
             // from which 1 meaning accepante and 2 - 5 for rejection
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
-            //TODO: testing the turnery operator for this condition
+
             return (rand == 1) ? 1 : 0;
-//            if (rand == 1) {
-//                return 1;
-//            } else {
-//                return 0;
-//            }
+
         } else if (isInBetween(changeRequestSize, 25, 75)) {
             //If the change size is between 25 and 75 then there are 60 - 40
             // chances of it being accepted or rejected.
             //Becasue the following random will return values b/w 1 and 5
             //from which 1, 2, 3 meaning acceptance and 4, 5 for rejection
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
-            if (rand == 4 || rand == 5) {
-                return 0;
-            } else {
-                return 1;
-            }
+
+            return ((rand == 4) || (rand == 5)) ? 0 : 1;
+
         } else if (isInBetween(changeRequestSize, 0, 25)) {
             //If change size is less then 25 then there are 80 - 20 
             // chances of it being accepted and rejected.
             //Beccause the following will return random b/w 1 and 5
             //from which 1 -4 meaning acceptance, and 5 for rejection.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
-            //TODO: testing the turnery operator for this condition
+
             return (rand == 5) ? 0 : 1;
-//            if (rand == 5) {
-//                return 0;
-//            } else {
-//                return 1;
-//            }
+
         }
         return 0;
     }
