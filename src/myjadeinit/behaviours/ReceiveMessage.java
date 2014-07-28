@@ -211,7 +211,6 @@ public class ReceiveMessage extends CyclicBehaviour {
                         sendMessage(DEVELOPER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         sendMessage(USER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         sendMessage(MANAGER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        //sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         myAgent.doSuspend();
                         break;
                 }
