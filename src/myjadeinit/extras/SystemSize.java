@@ -5,16 +5,27 @@
  */
 package myjadeinit.extras;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
 
 /**
  *
@@ -26,13 +37,27 @@ public class SystemSize implements Serializable {
 
     private int SoftSize;
 
-    private final String path = "raw/testing.txt";
-    private final File file;
+    private Date date;
+
+    private File file;
+
+    private FileOutputStream fileOutputStream;
+
+    private HSSFWorkbook workbook;
+
+    private HSSFSheet worksheet;
+
+    private Row row;
+
+    private Cell cell;
+
+    private final Map<String, String> records;
+
     private final DateFormat dateFormatter;
 
-    private FileWriter fileWriter;
-    private BufferedWriter bufferedWritter;
-    private Calendar calender;
+    private final String PATH = "raw/test.xls";
+
+    private final String WORKSHEET = "My worksheet";
 
     /**
      *
@@ -40,10 +65,10 @@ public class SystemSize implements Serializable {
      */
     public SystemSize(int SoftSize) {
         this.SoftSize = SoftSize;
-        dateFormatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        file = new File(path);
-        initFile();
-
+        dateFormatter = new SimpleDateFormat("HH:mm:ss");
+        date = new Date();
+        records = new TreeMap<>();
+        records.put(dateFormatter.format(date), String.valueOf(SoftSize));
     }
 
     /**
@@ -58,6 +83,7 @@ public class SystemSize implements Serializable {
      */
     public void setSoftSize(int SoftSize) {
         this.SoftSize = SoftSize;
+
     }
 
     /**
@@ -66,7 +92,8 @@ public class SystemSize implements Serializable {
      */
     public void increaseSize() {
         this.SoftSize += 1;
-        writeToFile(SoftSize);
+        date = new Date();
+        records.put(dateFormatter.format(date), String.valueOf(SoftSize));
     }
 
     /**
@@ -77,48 +104,56 @@ public class SystemSize implements Serializable {
         this.SoftSize -= 1;
     }
 
-    private void initFile() {
-        if (file.exists()) {
-            try {
-                file.delete();
-                file.createNewFile();
-                fileWriter = new FileWriter(file, true);
-                bufferedWritter = new BufferedWriter(fileWriter);
-                bufferedWritter.append("This file has record of changing Software size over time");
-                bufferedWritter.append(System.lineSeparator());
-                bufferedWritter.append(" Date - Time " + " --- " + " System Size ");
-                bufferedWritter.append(System.lineSeparator());
-            } catch (IOException ex) {
-                Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    bufferedWritter.close();
-                    fileWriter.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+    /**
+     *
+     */
+    public void writeToFile() {
 
-        }
+        Thread thread = new Thread(new RecordsWriter(records));
+        thread.start();
+
+//        try {
+//            file = new File(PATH);
+//
+//            fileOutputStream = new FileOutputStream(file);
+//
+//            workbook = new HSSFWorkbook();
+//
+//            worksheet = workbook.createSheet(WORKSHEET);
+//
+//            Set<String> keySet = records.keySet();
+//            int rowNum = 0;
+//
+//            row = worksheet.createRow(rowNum++);
+//
+//            row.createCell(0).setCellValue("Time-stamp");
+//            row.createCell(1).setCellValue("SoftSize");
+//
+//            for (String key : keySet) {
+//                row = worksheet.createRow(rowNum++);
+//                row.createCell(0).setCellValue(key);
+//                row.createCell(1).setCellValue(Integer.parseInt(records.get(key)));
+//            }
+//            workbook.write(fileOutputStream);
+//            fileOutputStream.close();
+//
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
+//        }
     }
 
-    private void writeToFile(int SoftSize) {
-        calender = Calendar.getInstance();
-        try {
-            fileWriter = new FileWriter(file, true);
-            bufferedWritter = new BufferedWriter(fileWriter);
-            bufferedWritter.append(dateFormatter.format(calender.getTime()) + " --- " + SoftSize);
-            bufferedWritter.append(System.lineSeparator());
-        } catch (IOException ex) {
-            Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            try {
-                bufferedWritter.close();
-                fileWriter.close();
-            } catch (IOException ex) {
-                Logger.getLogger(SystemSize.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-
+//    private HSSFCellStyle style() {
+//
+//        HSSFCellStyle style = workbook.createCellStyle();
+//        style.setAlignment(CellStyle.ALIGN_CENTER);
+//        Font font = workbook.createFont();
+//        font.setFontHeightInPoints((short) 24);
+//        font.setFontName("Courier New");
+//        font.setItalic(true);
+//        font.setStrikeout(true);
+//        style.setFont(font);
+//        return style;
+//    }
 }

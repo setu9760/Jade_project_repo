@@ -37,6 +37,9 @@ public class SoftwareSystem extends Agent {
     @Override
     protected void takeDown() {
         System.out.println("Agent " + getLocalName() + " is terminated");
+
+        size.writeToFile();
+
         doDelete();
         super.takeDown();
     }
