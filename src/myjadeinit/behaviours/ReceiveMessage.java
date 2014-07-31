@@ -32,7 +32,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     /**
      */
-    private final int MAX = 5;
+    private final int MAX = 10;
     /**
      */
     private final int MIN = 1;
@@ -50,7 +50,13 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final String REFACTOR = "refactor";
     /**
      */
+    private final String REFACTOR_BY = "refactor by";
+    /**
+     */
     private final String DEFACTOR = "defactor";
+    /**
+     */
+    private final String DEFACTOR_BY = "defactor by";
     /**
      */
     private final String REFACTORING_REQUIRED = "refactoring required";
@@ -69,6 +75,12 @@ public class ReceiveMessage extends CyclicBehaviour {
     /**
      */
     private final String DECLINE_REQUIREMENT_CHANGE = "decline requirement change";
+    /**
+     */
+    private final String REQUEST_CODE_QUALITY = "request code quality";
+    /**
+     */
+    private final String RETURN_CODE_QUALITY = "return code quality";
     /**
      */
     private final String MESSAGE_SPLITTER = ",";
@@ -173,7 +185,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     @Override
     public void action() {
-        waitThread();
+        // waitThread();
         aclmessage = myAgent.receive();
         if (aclmessage != null) {
             message = aclmessage.getContent().toLowerCase(locale);
@@ -186,17 +198,18 @@ public class ReceiveMessage extends CyclicBehaviour {
                     try {
                         int evolveBy = Integer.parseInt(messages[1]);
                         myAgent.addBehaviour(new Evolve(myAgent, size, evolveBy));
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                        sendMessage(SOURCECODE_AID, DEFACTOR, REQUEST_MESSAGE_TYPE);
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 }
                 switch (message) {
                     case REQUEST_SOFTWARE_SIZE:
                         if (size != null) {
-                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + "," + String.valueOf(size.getSoftSize()), DEFAULT_MESSAGE_TYPE);
+                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + MESSAGE_SPLITTER + String.valueOf(size.getSoftSize()), DEFAULT_MESSAGE_TYPE);
                         } else {
-                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + "," + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
+                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
                         }
                         break;
                     case EVOLVE:
@@ -225,6 +238,14 @@ public class ReceiveMessage extends CyclicBehaviour {
                     case DEFACTOR:
                         myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
                         break;
+                    case REQUEST_CODE_QUALITY:
+                        if (codeQuality != null) {
+                            sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + String.valueOf(codeQuality.getCodeQuality()), DEFAULT_MESSAGE_TYPE);
+
+                        } else {
+                            sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
+                        }
+                        break;
                 }
 
             } else if (myAgent instanceof Developer) {
@@ -236,9 +257,17 @@ public class ReceiveMessage extends CyclicBehaviour {
                         int systemSize = Integer.parseInt(messages[1]);
                         message = String.valueOf(systemSize);
                         sendMessage(DEVELOPER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                         System.out.println(messages[1]);
+                    }
+                } else if (message.contains(RETURN_CODE_QUALITY)) {
+                    String[] messages = message.split(MESSAGE_SPLITTER);
+                    try {
+                        int CodeQuality = Integer.parseInt(messages[1]);
+                        message = String.valueOf(CodeQuality);
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     switch (message) {
@@ -255,10 +284,10 @@ public class ReceiveMessage extends CyclicBehaviour {
                                     System.out.println("change size is :" + change.getChangeRequirementSize());
                                     System.out.println("change is accepted");
                                     sendMessage(SYSTEM_AID, EVOLVE_BY + "," + change.getChangeRequirementSize(), REQUEST_MESSAGE_TYPE);
+                                    sendMessage(SOURCECODE_AID, REFACTOR_BY + MESSAGE_SPLITTER + change, REQUEST_MESSAGE_TYPE);
                                     //TODO: Apply logic here to send the defactoring message BUT
                                     //it should be based on the change requirement size. also need 
                                     //check if the code quality has not reached 0.
-
                                     break;
                                 case 0:
                                     System.out.println("change size was :" + change.getChangeRequirementSize());
@@ -438,39 +467,77 @@ public class ReceiveMessage extends CyclicBehaviour {
      * 100 inclusive and will always be randomised which makes this process more
      * dynamic.</p>
      *
-     * @return 0 for accepting the change and 1 for rejecting it.
+     * @return 0 for rejecting the change and 1 for accepting it.
      */
     private int randomizeChangeAcceptance(int changeRequestSize) {
         random = new Random();
         int rand;
-        if (isInBetween(changeRequestSize, 75, 100)) {
-            //If change size is larger then 75 then there are 
-            //20 - 80 chances of it being accepted or rejected.
-            //Because the following random will return value b/w 1 and 5
-            // from which 1 meaning accepante and 2 - 5 for rejection
+        ///////////////////
+        if (isInBetween(changeRequestSize, 1, 20)) {
+            //If change size is between 1 and 20 there are
+            // 80% chances of it being accepted randomly.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
 
-            return (rand == 1) ? 1 : 0;
+            return (isInBetween(rand, 1, 8)) ? 1 : 0;
 
-        } else if (isInBetween(changeRequestSize, 25, 75)) {
-            //If the change size is between 25 and 75 then there are 60 - 40
-            // chances of it being accepted or rejected.
-            //Becasue the following random will return values b/w 1 and 5
-            //from which 1, 2, 3 meaning acceptance and 4, 5 for rejection
+        } else if (isInBetween(changeRequestSize, 21, 40)) {
+            //If change size is between 21 and 40 there are
+            //60% chances of it being accepted randomly.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
 
-            return ((rand == 4) || (rand == 5)) ? 0 : 1;
+            return (isInBetween(rand, 1, 6)) ? 1 : 0;
 
-        } else if (isInBetween(changeRequestSize, 0, 25)) {
-            //If change size is less then 25 then there are 80 - 20 
-            // chances of it being accepted and rejected.
-            //Beccause the following will return random b/w 1 and 5
-            //from which 1 -4 meaning acceptance, and 5 for rejection.
+        } else if (isInBetween(changeRequestSize, 41, 60)) {
+            //If change size is between 41 and 60 there are
+            //50% chances of it being accepted randomly.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
 
-            return (rand == 5) ? 0 : 1;
+            return (isInBetween(rand, 1, 5)) ? 1 : 0;
+        } else if (isInBetween(changeRequestSize, 61, 80)) {
+            //If change size is between 61 and 80 there are 
+            //only 40% chances of it being accepted randomly.
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
 
+            return (isInBetween(rand, 1, 4)) ? 1 : 0;
+
+        } else if (isInBetween(changeRequestSize, 81, 100)) {
+            //If change size is between 81 and 100 it is considered
+            //exponantial and there fore there are only 20% chances 
+            //of it being accepted randomly.
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+
+            return (isInBetween(rand, 1, 2)) ? 1 : 0;
         }
+
+        ////////////////////
+//        if (isInBetween(changeRequestSize, 75, 100)) {
+//            //If change size is larger then 75 then there are 
+//            //20 - 80 chances of it being accepted or rejected.
+//            //Because the following random will return value b/w 1 and 5
+//            // from which 1 meaning accepante and 2 - 5 for rejection
+//            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+//
+//            return (rand == 1) ? 1 : 0;
+//
+//        } else if (isInBetween(changeRequestSize, 25, 75)) {
+//            //If the change size is between 25 and 75 then there are 60 - 40
+//            // chances of it being accepted or rejected.
+//            //Becasue the following random will return values b/w 1 and 5
+//            //from which 1, 2, 3 meaning acceptance and 4, 5 for rejection
+//            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+//
+//            return ((rand == 4) || (rand == 5)) ? 0 : 1;
+//
+//        } else if (isInBetween(changeRequestSize, 0, 25)) {
+//            //If change size is less then 25 then there are 80 - 20 
+//            // chances of it being accepted and rejected.
+//            //Beccause the following will return random b/w 1 and 5
+//            //from which 1 -4 meaning acceptance, and 5 for rejection.
+//            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+//
+//            return (rand == 5) ? 0 : 1;
+//
+//        }
         return 0;
     }
 
@@ -481,12 +548,12 @@ public class ReceiveMessage extends CyclicBehaviour {
      * condition.</p>
      *
      * @param num The number to be tested
-     * @param lowerBoundary the lower boundary (exclusive)
+     * @param lowerBoundary the lower boundary (inclusive)
      * @param higherBoundary the higher boundary (inclusive)
      * @return true if with in the lower and higher boundary false otherwise.
      */
     public boolean isInBetween(int num, int lowerBoundary, int higherBoundary) {
-        return (num > lowerBoundary && num <= higherBoundary);
+        return (num >= lowerBoundary && num <= higherBoundary);
     }
 
     /**

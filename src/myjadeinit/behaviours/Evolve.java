@@ -15,8 +15,9 @@ import myjadeinit.extras.SystemSize;
  */
 public class Evolve extends Behaviour {
 
-    private int evoleBy = 1;
+    private int evoleBy = 0;
     private final SystemSize size;
+    private boolean done = false;
 
     /**
      * This constructor is mainly used when making normal evolution process to
@@ -49,16 +50,21 @@ public class Evolve extends Behaviour {
 
     @Override
     public void action() {
-        while (done()) {
+        while (!done()) {
+            if (this.evoleBy != 0) {
+                size.increaseSize(evoleBy);
+                System.out.println("evolved by: " + evoleBy);
+                System.out.println("Software size is: " + size.getSoftSize());
+            }
             size.increaseSize();
             System.out.println("Software size is: " + size.getSoftSize());
-            evoleBy--;
+            done = true;
         }
     }
 
     @Override
     public boolean done() {
-        return evoleBy > 0;
+        return done;
     }
 
 }

@@ -5,10 +5,8 @@
  */
 package myjadeinit.behaviours;
 
-import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.lang.acl.ACLMessage;
 import myjadeinit.extras.SourceCodeQuality;
 
 /**
