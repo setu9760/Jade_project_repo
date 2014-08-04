@@ -37,6 +37,7 @@ public final class SystemSize implements Serializable {
         dateFormatter = new SimpleDateFormat("HH:mm:ss");
         records = new TreeMap<>();
         logRecord();
+
     }
 
     /**
@@ -108,6 +109,7 @@ public final class SystemSize implements Serializable {
     public void writeToFile() {
 
         Thread thread = new Thread(new RecordsWriter(records, RecordsWriter.RECORD_NAME_SOFTSIZE));
-        thread.start();
+        Runtime.getRuntime().addShutdownHook(thread);
+
     }
 }

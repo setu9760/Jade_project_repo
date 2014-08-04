@@ -55,8 +55,8 @@ public class Developer extends Agent {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Developer.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    sendMessage(new AID("System", AID.ISLOCALNAME), REQUEST_SOFTWARE_SIZE, ACLMessage.REQUEST);
-                    sendMessage(new AID("SourceCode", AID.ISLOCALNAME), REQUEST_CODE_QUALITY, ACLMessage.REQUEST);
+//                    sendMessage(new AID("System", AID.ISLOCALNAME), REQUEST_SOFTWARE_SIZE, ACLMessage.REQUEST);
+//                    sendMessage(new AID("SourceCode", AID.ISLOCALNAME), REQUEST_CODE_QUALITY, ACLMessage.REQUEST);
 
                 }
             }

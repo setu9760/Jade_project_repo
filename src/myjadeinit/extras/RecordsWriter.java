@@ -52,7 +52,7 @@ public class RecordsWriter implements Runnable {
 
     private final Date date;
 
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM -- HH.mm.ss");
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM--HH.mm.ss");
 
     public static final String RECORD_NAME_SOFTSIZE = "SoftwareSize";
 
@@ -60,20 +60,21 @@ public class RecordsWriter implements Runnable {
 
     public RecordsWriter(Map<String, String> records, String recordName) {
 
+        this.records = new TreeMap<>(records);
+        date = new Date();
         switch (recordName) {
             case RECORD_NAME_SOFTSIZE:
-                PATH = "raw/SoftwareSize.xls";
+                PATH = "raw/" + dateFormatter.format(date) + "-SoftwareSize.xls";
+                //PATH = "raw/SoftwareSize.xls";
                 break;
             case RECORD_NAME_CODEQUALITY:
-                PATH = "raw/CodeQuality.xls";
+                PATH = "raw/" + dateFormatter.format(date) + "-CodeQuality.xls";
+                //PATH = "raw/CodeQuality.xls";
                 break;
             default:
                 PATH = "raw/unknown.xls";
                 break;
         }
-
-        this.records = new TreeMap<>(records);
-        date = new Date();
         this.WORKSHEET = "Record @ " + dateFormatter.format(date);
     }
 

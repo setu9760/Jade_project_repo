@@ -7,6 +7,7 @@ package myjadeinit.actors;
 
 import jade.core.Agent;
 import myjadeinit.behaviours.ReceiveMessage;
+import myjadeinit.extras.InitialiseVariable;
 import myjadeinit.extras.SourceCodeQuality;
 
 /**
@@ -19,7 +20,7 @@ public class SourceCode extends Agent {
     private ReceiveMessage receiveMesageBehaviour;
 
     public SourceCode() {
-        this.codeQuality = new SourceCodeQuality(50);
+        this.codeQuality = new SourceCodeQuality(InitialiseVariable.CodeQuality);
     }
 
     @Override

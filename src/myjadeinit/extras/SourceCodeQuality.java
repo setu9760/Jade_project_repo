@@ -122,6 +122,6 @@ public final class SourceCodeQuality implements Serializable {
     public void writeToFile() {
 
         Thread thread = new Thread(new RecordsWriter(records, RecordsWriter.RECORD_NAME_CODEQUALITY));
-        thread.start();
+        Runtime.getRuntime().addShutdownHook(thread);
     }
 }

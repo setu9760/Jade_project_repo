@@ -10,6 +10,7 @@ import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.Random;
 import java.util.logging.Level;
@@ -21,6 +22,7 @@ import myjadeinit.actors.SourceCode;
 import myjadeinit.actors.SystemOwners;
 import myjadeinit.actors.User;
 import myjadeinit.extras.ChangeRequirement;
+import myjadeinit.extras.InitialiseVariable;
 import myjadeinit.extras.SourceCodeQuality;
 import myjadeinit.extras.SystemSize;
 
@@ -149,7 +151,7 @@ public class ReceiveMessage extends CyclicBehaviour {
     private String message;
     private SystemSize size;
     private SourceCodeQuality codeQuality;
-    private Random random;
+    private final Random random = new Random();
 
     /**
      * This is constructor to be used in the SoftwareSystem agent.
@@ -241,7 +243,6 @@ public class ReceiveMessage extends CyclicBehaviour {
                     case REQUEST_CODE_QUALITY:
                         if (codeQuality != null) {
                             sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + String.valueOf(codeQuality.getCodeQuality()), DEFAULT_MESSAGE_TYPE);
-
                         } else {
                             sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
                         }
@@ -266,6 +267,8 @@ public class ReceiveMessage extends CyclicBehaviour {
                     try {
                         int CodeQuality = Integer.parseInt(messages[1]);
                         message = String.valueOf(CodeQuality);
+
+                        //TODO: do something to apply refactoring or defactoring in each loop
                     } catch (NumberFormatException ex) {
                         Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -279,7 +282,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                             break;
                         case REQUEST_REQUIREMENT_CHANGE:
                             ChangeRequirement change = new ChangeRequirement();
-                            switch (randomizeChangeAcceptance(change.getChangeRequirementSize())) {
+                            switch (ChangeAcceptancePolicy(change.getChangeRequirementSize())) {
                                 case 1:
                                     System.out.println("change size is :" + change.getChangeRequirementSize());
                                     System.out.println("change is accepted");
@@ -318,7 +321,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                             myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
                             USER_INIT_DONE = true;
                         }
-                        myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
+                        // myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
                         break;
                     case DIE_MESSAGE:
                         myAgent.doSuspend();
@@ -469,8 +472,8 @@ public class ReceiveMessage extends CyclicBehaviour {
      *
      * @return 0 for rejecting the change and 1 for accepting it.
      */
-    private int randomizeChangeAcceptance(int changeRequestSize) {
-        random = new Random();
+    private int ChangeAcceptancePolicy(int changeRequestSize) {
+
         int rand;
         ///////////////////
         if (isInBetween(changeRequestSize, 1, 20)) {
@@ -509,35 +512,6 @@ public class ReceiveMessage extends CyclicBehaviour {
             return (isInBetween(rand, 1, 2)) ? 1 : 0;
         }
 
-        ////////////////////
-//        if (isInBetween(changeRequestSize, 75, 100)) {
-//            //If change size is larger then 75 then there are 
-//            //20 - 80 chances of it being accepted or rejected.
-//            //Because the following random will return value b/w 1 and 5
-//            // from which 1 meaning accepante and 2 - 5 for rejection
-//            rand = random.nextInt((MAX - MIN) + 1) + MIN;
-//
-//            return (rand == 1) ? 1 : 0;
-//
-//        } else if (isInBetween(changeRequestSize, 25, 75)) {
-//            //If the change size is between 25 and 75 then there are 60 - 40
-//            // chances of it being accepted or rejected.
-//            //Becasue the following random will return values b/w 1 and 5
-//            //from which 1, 2, 3 meaning acceptance and 4, 5 for rejection
-//            rand = random.nextInt((MAX - MIN) + 1) + MIN;
-//
-//            return ((rand == 4) || (rand == 5)) ? 0 : 1;
-//
-//        } else if (isInBetween(changeRequestSize, 0, 25)) {
-//            //If change size is less then 25 then there are 80 - 20 
-//            // chances of it being accepted and rejected.
-//            //Beccause the following will return random b/w 1 and 5
-//            //from which 1 -4 meaning acceptance, and 5 for rejection.
-//            rand = random.nextInt((MAX - MIN) + 1) + MIN;
-//
-//            return (rand == 5) ? 0 : 1;
-//
-//        }
         return 0;
     }
 
@@ -567,15 +541,19 @@ public class ReceiveMessage extends CyclicBehaviour {
      */
     private class ContinuousEvolvution extends Behaviour {
 
+        private int numOfCycles = InitialiseVariable.numOfCycles;
+
         public ContinuousEvolvution(Agent agent) {
             super(agent);
         }
 
         @Override
         public void action() {
-            sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, REQUEST_MESSAGE_TYPE);
+
             try {
-                Thread.sleep(10000);
+                Thread.sleep(InitialiseVariable.timeInterval);
+                sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, REQUEST_MESSAGE_TYPE);
+                numOfCycles--;
             } catch (InterruptedException ex) {
                 Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -583,7 +561,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
         @Override
         public boolean done() {
-            return false;
+            return numOfCycles == 1;
         }
     }
 }
