@@ -114,7 +114,11 @@ public class RecordsWriter implements Runnable {
 
             cell = row.createCell(1);
             cell.setCellStyle(style());
-            cell.setCellValue("SoftSize");
+            if (PATH.contains(RECORD_NAME_SOFTSIZE)) {
+                cell.setCellValue("SoftSize");
+            } else if (PATH.contains(RECORD_NAME_CODEQUALITY)) {
+                cell.setCellValue("CodeQuality");
+            }
 
             for (String key : keySet) {
                 row = worksheet.createRow(rowNum++);
@@ -122,13 +126,10 @@ public class RecordsWriter implements Runnable {
                 row.createCell(1).setCellValue(Integer.parseInt(records.get(key)));
             }
             workbook.write(fileOutputStream);
-            fileOutputStream.close();
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(RecordsWriter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(RecordsWriter.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InvalidFormatException ex) {
+        } catch (IOException | InvalidFormatException ex) {
             Logger.getLogger(RecordsWriter.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             if (fileOutputStream != null) {

@@ -11,6 +11,7 @@ import jade.lang.acl.ACLMessage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import myjadeinit.behaviours.ReceiveMessage;
+import myjadeinit.extras.InitialiseVariable;
 
 /**
  *
@@ -34,6 +35,8 @@ public class Developer extends Agent {
      */
     private final String DEFAULT_MESSAGE = "This is a default string for the message, null value was passed in the message content";
 
+    private int numOfCycles = InitialiseVariable.numOfCycles;
+
     ReceiveMessage receiveMessageBehaviour;
 
     ACLMessage aclmessage;
@@ -43,26 +46,25 @@ public class Developer extends Agent {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
         receiveMessageBehaviour = new ReceiveMessage(this);
         addBehaviour(receiveMessageBehaviour);
-
         Thread thread;
         thread = new Thread() {
 
             @Override
             public void run() {
-                while (true) {
+                while (numOfCycles != 0) {
                     try {
-                        Thread.sleep(15000);
+                        Thread.sleep(InitialiseVariable.timeInterval);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Developer.class.getName()).log(Level.SEVERE, null, ex);
                     }
-//                    sendMessage(new AID("System", AID.ISLOCALNAME), REQUEST_SOFTWARE_SIZE, ACLMessage.REQUEST);
-//                    sendMessage(new AID("SourceCode", AID.ISLOCALNAME), REQUEST_CODE_QUALITY, ACLMessage.REQUEST);
-
+                    sendMessage(new AID("System", AID.ISLOCALNAME), REQUEST_SOFTWARE_SIZE, ACLMessage.REQUEST);
+                    //sendMessage(new AID("SourceCode", AID.ISLOCALNAME), RE, ACLMessage.REQUEST);
+                    numOfCycles--;
                 }
             }
         };
         // Setting it as daemon thread as it will keep running in background 
-//          to execute perticular operation every 5000 milliseconds.
+        //to execute perticular operation every 5000 milliseconds.
         thread.setDaemon(true);
         thread.start();
 

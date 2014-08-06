@@ -35,8 +35,8 @@ public class Evolve extends Behaviour {
     /**
      * This constructor is used when
      * {@link myjadeinit.behaviours.RandomEvolution} is applied to the software
-     * system. This constructor provides indeterminate evolution to the software
-     * system.
+     * system. This constructor provides evolution to the software system based
+     * on random number generated passed in the constructor..
      *
      * @param agent: my agent
      * @param size: system size parameter
@@ -55,9 +55,10 @@ public class Evolve extends Behaviour {
                 size.increaseSize(evoleBy);
                 System.out.println("evolved by: " + evoleBy);
                 System.out.println("Software size is: " + size.getSoftSize());
+            } else {
+                size.increaseSize();
+                System.out.println("Software size is: " + size.getSoftSize());
             }
-            size.increaseSize();
-            System.out.println("Software size is: " + size.getSoftSize());
             done = true;
         }
     }

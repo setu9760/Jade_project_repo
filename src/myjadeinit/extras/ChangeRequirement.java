@@ -24,13 +24,12 @@ public class ChangeRequirement {
     private final int MIN = 1;
     /**
      */
-    private final Random random;
+    private final Random random = new Random();
 
     /**
      *
      */
     public ChangeRequirement() {
-        random = new Random();
         changeRequirementSize = randomChangeGenerator();
     }
 
@@ -39,7 +38,6 @@ public class ChangeRequirement {
      * @param changeRequirementSize
      */
     public ChangeRequirement(int changeRequirementSize) {
-        random = new Random();
         if (changeIsValid(changeRequirementSize)) {
             this.changeRequirementSize = changeRequirementSize;
         } else {

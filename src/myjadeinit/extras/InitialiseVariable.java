@@ -36,7 +36,7 @@ public class InitialiseVariable extends javax.swing.JFrame {
     /**
      * This is default number of cycles which is 50.
      */
-    public static int numOfCycles = 50;
+    public static int numOfCycles = 20;
 
     /**
      * Creates new form NewJFrame
@@ -80,18 +80,23 @@ public class InitialiseVariable extends javax.swing.JFrame {
 
         jLabel3.setText("Select time gap in each simulation:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " ", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "120", "140", "160", "180", "200" }));
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "120", "140", "160", "180", "200" }));
         jComboBox1.setToolTipText("Please select number of simulations");
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " ", "1", "2", "5", "10", "15", "12" }));
+        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "1", "2", "5", "10", "15", "12" }));
 
         jLabel4.setText("Initial Software size:");
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " ", "10", "20", "40", "60", "80", "100" }));
+        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "10", "20", "40", "60", "80", "100" }));
 
         jLabel5.setText("Initial Code quality:");
 
-        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { " ", "40", "50", "60" }));
+        jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Default", "40", "50", "60" }));
+        jComboBox5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox5ActionPerformed(evt);
+            }
+        });
 
         jButton1.setText("Continue");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -129,16 +134,16 @@ public class InitialiseVariable extends javax.swing.JFrame {
                                     .addComponent(jLabel4)
                                     .addComponent(jLabel5))
                                 .addGap(40, 40, 40)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(jComboBox4, javax.swing.GroupLayout.Alignment.LEADING, 0, 1, Short.MAX_VALUE)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING, 0, 1, Short.MAX_VALUE)
-                                    .addComponent(jComboBox3, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jComboBox5, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jComboBox5, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jComboBox3, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jComboBox1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(21, 21, 21)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel8)
                                     .addComponent(jLabel7)
-                                    .addComponent(jLabel8)))
+                                    .addComponent(jLabel6)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(52, 52, 52)
                                 .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 90, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -148,7 +153,7 @@ public class InitialiseVariable extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(96, 96, 96)
                         .addComponent(jLabel1)))
-                .addGap(47, 47, Short.MAX_VALUE))
+                .addGap(36, 36, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -183,20 +188,25 @@ public class InitialiseVariable extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
         if (!isEmpty(jComboBox1) && !isEmpty(jComboBox3) && !isEmpty(jComboBox4) && !isEmpty(jComboBox5)) {
+            @SuppressWarnings("LocalVariableHidesMemberVariable")
             String numOfCycles = jComboBox1.getSelectedItem().toString();
+            @SuppressWarnings("LocalVariableHidesMemberVariable")
             String timeInterval = jComboBox3.getSelectedItem().toString();
+            @SuppressWarnings("LocalVariableHidesMemberVariable")
             String SoftSize = jComboBox4.getSelectedItem().toString();
+            @SuppressWarnings("LocalVariableHidesMemberVariable")
             String CodeQuality = jComboBox5.getSelectedItem().toString();
 
-            String all = "Cycles: " + numOfCycles;
-            all += "\nGap" + timeInterval;
-            all += "\nSize " + SoftSize;
-            all += "\nQuality " + CodeQuality;
+            String all = "Number of Cycles: " + numOfCycles;
+            all += "\nTime Interval: " + timeInterval;
+            all += "\nSoftware Size: " + SoftSize;
+            all += "\nCode Quality: " + CodeQuality;
 
             try {
                 InitialiseVariable.SoftSize = Integer.parseInt(SoftSize);
@@ -208,7 +218,9 @@ public class InitialiseVariable extends javax.swing.JFrame {
                 Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            JOptionPane.showMessageDialog(null, all);
+            JOptionPane.showConfirmDialog(this, all, "", JOptionPane.YES_NO_CANCEL_OPTION);
+            
+            
             dispose();
             try {
                 final Class clazz = Class.forName("jade.Boot");
@@ -225,7 +237,8 @@ public class InitialiseVariable extends javax.swing.JFrame {
                         }
                     }
                 }).start();
-            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
+            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException ex) {
+                Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
             }
 
         } else {
@@ -251,6 +264,10 @@ public class InitialiseVariable extends javax.swing.JFrame {
 
 
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox5ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

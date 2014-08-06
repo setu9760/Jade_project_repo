@@ -35,7 +35,7 @@ public class Degenarate extends Behaviour {
     /**
      * This constructor is used to provide indeterminate degeneration of the
      * software system, meaning the system size will decrease by random number
-     * every time te behaviour is applied using this constructor.
+     * every time the behaviour is applied using this constructor.
      *
      * @param agent
      * @param size
