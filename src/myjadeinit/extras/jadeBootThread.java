@@ -30,7 +30,7 @@ public class jadeBootThread extends Thread {
     private final String GUI_args = "-gui";
     /**
      */
-    private final Class secondClass;
+    private final Class<?> secondClass;
     /**
      */
     private final Method main;
