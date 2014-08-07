@@ -21,6 +21,7 @@ import myjadeinit.actors.SourceCode;
 import myjadeinit.actors.SystemOwners;
 import myjadeinit.actors.User;
 import myjadeinit.extras.ChangeRequirement;
+import myjadeinit.extras.InitialiseVariable;
 import myjadeinit.extras.SourceCodeQuality;
 import myjadeinit.extras.SystemSize;
 
@@ -32,7 +33,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     /**
      */
-    private final int MAX = 5;
+    private final int MAX = 10;
     /**
      */
     private final int MIN = 1;
@@ -50,7 +51,13 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final String REFACTOR = "refactor";
     /**
      */
+    private final String REFACTOR_BY = "refactor by";
+    /**
+     */
     private final String DEFACTOR = "defactor";
+    /**
+     */
+    private final String DEFACTOR_BY = "defactor by";
     /**
      */
     private final String REFACTORING_REQUIRED = "refactoring required";
@@ -69,6 +76,15 @@ public class ReceiveMessage extends CyclicBehaviour {
     /**
      */
     private final String DECLINE_REQUIREMENT_CHANGE = "decline requirement change";
+    /**
+     */
+    private final String REQUEST_CODE_QUALITY = "request code quality";
+    /**
+     */
+    private final String RETURN_CODE_QUALITY = "return code quality";
+    /**
+     */
+    private final String RANDOM_REFACTORING = "random refactoring";
     /**
      */
     private final String MESSAGE_SPLITTER = ",";
@@ -137,10 +153,10 @@ public class ReceiveMessage extends CyclicBehaviour {
     private String message;
     private SystemSize size;
     private SourceCodeQuality codeQuality;
-    private Random random;
+    private final Random random = new Random();
 
     /**
-     * This is constructor to be used in the SoftwareSystem agent.
+     * This is constructor to be used for the SoftwareSystem agent.
      *
      * @param agent: my agent
      * @param size: Software system size
@@ -152,7 +168,7 @@ public class ReceiveMessage extends CyclicBehaviour {
     }
 
     /**
-     * This constructor is to be used in the SourceCode Agent.
+     * This constructor is to be used for the SourceCode Agent.
      *
      * @param agent: my agent
      * @param codeQuality: Code quality of Software System
@@ -173,7 +189,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     @Override
     public void action() {
-        waitThread();
+        // waitThread();
         aclmessage = myAgent.receive();
         if (aclmessage != null) {
             message = aclmessage.getContent().toLowerCase(locale);
@@ -186,23 +202,24 @@ public class ReceiveMessage extends CyclicBehaviour {
                     try {
                         int evolveBy = Integer.parseInt(messages[1]);
                         myAgent.addBehaviour(new Evolve(myAgent, size, evolveBy));
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
+                        sendMessage(SOURCECODE_AID, RANDOM_REFACTORING + MESSAGE_SPLITTER + evolveBy, REQUEST_MESSAGE_TYPE);
+                        //sendMessage(SOURCECODE_AID, DEFACTOR, REQUEST_MESSAGE_TYPE);
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                     }
 
                 }
                 switch (message) {
                     case REQUEST_SOFTWARE_SIZE:
                         if (size != null) {
-                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + "," + String.valueOf(size.getSoftSize()), DEFAULT_MESSAGE_TYPE);
+                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + MESSAGE_SPLITTER + String.valueOf(size.getSoftSize()), DEFAULT_MESSAGE_TYPE);
                         } else {
-                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + "," + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
+                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
                         }
                         break;
                     case EVOLVE:
                         myAgent.addBehaviour(new Evolve(myAgent, size));
                         sendMessage(SOURCECODE_AID, DEFACTOR, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(DEVELOPER_AID, REFACTORING_REQUIRED, DEFAULT_MESSAGE_TYPE);
                         break;
                     case DEGENERATE:
                         myAgent.addBehaviour(new Degenarate(myAgent, size));
@@ -211,14 +228,30 @@ public class ReceiveMessage extends CyclicBehaviour {
                         sendMessage(DEVELOPER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         sendMessage(USER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         sendMessage(MANAGER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        //sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
                         myAgent.doSuspend();
                         break;
-
                 }
 
             } else if (myAgent instanceof SourceCode) {
                 myAgent = (SourceCode) myAgent;
+
+                if (message.contains(RANDOM_REFACTORING)) {
+                    String[] messages = message.split(MESSAGE_SPLITTER);
+                    try {
+                        int changeSize = Integer.parseInt(messages[1]);
+                        int randomRefactoringNumber = RandomizeCodeQialityPolicy(changeSize);
+                        if (randomRefactoringNumber > 0) {
+                            myAgent.addBehaviour(new Refactor(myAgent, codeQuality, randomRefactoringNumber));
+                        } else if (randomRefactoringNumber < 0) {
+                            //multiplying by -1 because the returning number will be negative but the constructor must be passed with 
+                            //positive number which then will be subtracted from the code quality.
+                            myAgent.addBehaviour(new Defactor(myAgent, codeQuality, (-1) * randomRefactoringNumber));
+                        }
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
                 switch (message) {
                     case REFACTOR:
                         myAgent.addBehaviour(new Refactor(myAgent, codeQuality));
@@ -227,7 +260,13 @@ public class ReceiveMessage extends CyclicBehaviour {
                     case DEFACTOR:
                         myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
                         break;
-
+                    case REQUEST_CODE_QUALITY:
+                        if (codeQuality != null) {
+                            sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + String.valueOf(codeQuality.getCodeQuality()), DEFAULT_MESSAGE_TYPE);
+                        } else {
+                            sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
+                        }
+                        break;
                 }
 
             } else if (myAgent instanceof Developer) {
@@ -239,9 +278,18 @@ public class ReceiveMessage extends CyclicBehaviour {
                         int systemSize = Integer.parseInt(messages[1]);
                         message = String.valueOf(systemSize);
                         sendMessage(DEVELOPER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                        System.out.println(messages[1]);
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else if (message.contains(RETURN_CODE_QUALITY)) {
+                    String[] messages = message.split(MESSAGE_SPLITTER);
+                    try {
+                        int CodeQuality = Integer.parseInt(messages[1]);
+                        message = String.valueOf(CodeQuality);
+
+                        //TODO: do something to apply refactoring or defactoring in each loop
+                    } catch (NumberFormatException ex) {
+                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } else {
                     switch (message) {
@@ -253,7 +301,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                             break;
                         case REQUEST_REQUIREMENT_CHANGE:
                             ChangeRequirement change = new ChangeRequirement();
-                            switch (randomizeChangeAcceptance(change.getChangeRequirementSize())) {
+                            switch (ChangeAcceptancePolicy(change.getChangeRequirementSize())) {
                                 case 1:
                                     System.out.println("change size is :" + change.getChangeRequirementSize());
                                     System.out.println("change is accepted");
@@ -262,45 +310,44 @@ public class ReceiveMessage extends CyclicBehaviour {
                                 case 0:
                                     System.out.println("change size was :" + change.getChangeRequirementSize());
                                     System.out.println("change is rejected");
+                                    sendMessage(MANAGER_AID, DECLINE_REQUIREMENT_CHANGE, ACLMessage.REFUSE);
                                     break;
                             }
 
                             break;
                         case "":
-
-                        case DIE_MESSAGE:
-                            myAgent.doSuspend();
+                            //TODO:
                             break;
-
+                        case DIE_MESSAGE:
+                            myAgent.doDelete();
+                            break;
                     }
                 }
             } else if (myAgent instanceof User) {
                 myAgent = (User) myAgent;
-                //TODO
                 switch (message) {
                     case DEFAULT_HELLO:
                         /**
                          * This case statement adds continuous change request
                          * behaviour to the user agent /this will only be done
                          * once in the complete software evolution process
-                         * model. Refer to {}
+                         * model.
                          */
                         if (!USER_INIT_DONE) {
                             myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
                             USER_INIT_DONE = true;
                         }
-                        myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
+                        // myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
                         break;
                     case DIE_MESSAGE:
                         myAgent.doSuspend();
                         break;
-
                 }
 
             } else if (myAgent instanceof SystemOwners) {
                 myAgent = (SystemOwners) myAgent;
-                // TODO:
-
+                //TODO
+                //Do something when th agent System owner receives the message
             } else if (myAgent instanceof ProjectManager) {
                 myAgent = (ProjectManager) myAgent;
                 switch (message) {
@@ -317,7 +364,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                         //TODO:
                         break;
                     case DIE_MESSAGE:
-                        myAgent.doSuspend();
+                        myAgent.doDelete();
                         break;
                 }
 
@@ -330,7 +377,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     private void printMessage(AID sender, String message) {
 
-        System.out.println(myAgent.getName() + " received a message from " + sender.getName());
+        System.out.println(myAgent.getLocalName() + " received a message from " + sender.getLocalName());
         System.out.println("Message: " + message);
 
     }
@@ -411,10 +458,10 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     /**
      * <p>
-     * This method makes the current thread sleep for 15 seconds, this method is
-     * simply used to see the message interaction in real time. in the beginning
-     * of each cyclic behaviour receive message this method is invoked making
-     * the process slow and observable.</p>
+     * This method makes the current thread sleep for 1.5 seconds, this method
+     * is simply used to see the message interaction in real time. in the
+     * beginning of each cyclic behaviour receive message this method is invoked
+     * making the process slow and observable.</p>
      * <p>
      * This method does not serve any processing purpose in term of this
      * project, it can simply be removed if not required</p>
@@ -429,51 +476,100 @@ public class ReceiveMessage extends CyclicBehaviour {
     }
 
     /**
+     * <p>
+     * This method randomises the acceptance of the change requirement. This
+     * method works on probability of change being accepted by the developer and
+     * the manager.</p>
+     * <p>
+     * The idea is that the smaller the change there is high probability of it
+     * being accepted and implemented by the programmers and vice versa if the
+     * change is larger. The change requirement size will always very from 1 to
+     * 100 inclusive and will always be randomised which makes this process more
+     * dynamic.</p>
      *
-     * @return
+     * @return 0 for rejecting the change and 1 for accepting it.
      */
-    private int randomizeChangeAcceptance(int changeRequestSize) {
-        random = new Random();
+    private int ChangeAcceptancePolicy(int changeRequestSize) {
+
         int rand;
-        if (isInBetween(changeRequestSize, 75, 100)) {
-            //If change size is larger then 75 then there are 
-            //20 - 80 chances of it being accepted or rejected.
-            //Because the following random will return value b/w 1 and 5
-            // from which 1 meaning accepante and 2 - 5 for rejection
+        ///////////////////
+        if (isInBetween(changeRequestSize, 1, 20)) {
+            //If change size is between 1 and 20 there are
+            // 80% chances of it being accepted randomly.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
-            //TODO: testing the turnery operator for this condition
-            return (rand == 1) ? 1 : 0;
-//            if (rand == 1) {
-//                return 1;
-//            } else {
-//                return 0;
-//            }
-        } else if (isInBetween(changeRequestSize, 25, 75)) {
-            //If the change size is between 25 and 75 then there are 60 - 40
-            // chances of it being accepted or rejected.
-            //Becasue the following random will return values b/w 1 and 5
-            //from which 1, 2, 3 meaning acceptance and 4, 5 for rejection
+
+            return (isInBetween(rand, 1, 8)) ? 1 : 0;
+
+        } else if (isInBetween(changeRequestSize, 21, 40)) {
+            //If change size is between 21 and 40 there are
+            //60% chances of it being accepted randomly.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
-            if (rand == 4 || rand == 5) {
-                return 0;
-            } else {
-                return 1;
-            }
-        } else if (isInBetween(changeRequestSize, 0, 25)) {
-            //If change size is less then 25 then there are 80 - 20 
-            // chances of it being accepted and rejected.
-            //Beccause the following will return random b/w 1 and 5
-            //from which 1 -4 meaning acceptance, and 5 for rejection.
+
+            return (isInBetween(rand, 1, 6)) ? 1 : 0;
+
+        } else if (isInBetween(changeRequestSize, 41, 60)) {
+            //If change size is between 41 and 60 there are
+            //50% chances of it being accepted randomly.
             rand = random.nextInt((MAX - MIN) + 1) + MIN;
-            //TODO: testing the turnery operator for this condition
-            return (rand == 5) ? 0 : 1;
-//            if (rand == 5) {
-//                return 0;
-//            } else {
-//                return 1;
-//            }
+
+            return (isInBetween(rand, 1, 5)) ? 1 : 0;
+        } else if (isInBetween(changeRequestSize, 61, 80)) {
+            //If change size is between 61 and 80 there are 
+            //only 40% chances of it being accepted randomly.
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+
+            return (isInBetween(rand, 1, 4)) ? 1 : 0;
+
+        } else if (isInBetween(changeRequestSize, 81, 100)) {
+            //If change size is between 81 and 100 it is considered
+            //exponantial and there fore there are only 20% chances 
+            //of it being accepted randomly.
+            rand = random.nextInt((MAX - MIN) + 1) + MIN;
+
+            return (isInBetween(rand, 1, 2)) ? 1 : 0;
         }
+
         return 0;
+    }
+
+    /**
+     * This method is a policy which decides the change in code quality.
+     * Every-time the requirement change is accepted and applied the software
+     * size increases by an integer, this integer is then passed to this method
+     * to determine the change in code quality.
+     * <p>
+     * The change in code quality is normally 10th of the change size and it is
+     * by default 1 if the change size is between 1 and 9. This method aso
+     * randomises if the the change in code quality will be positive or
+     * negative.</p>
+     * <p>
+     * If the return value is negative then Source code will be refactor
+     * resulting in increased code quality but if it is negative value than the
+     * code quality will be decreased.</p>
+     *
+     * @param changeSize The size of change requirement that was applied to the
+     * software size.
+     * @return The number by which the code quality will be affected.
+     */
+    private int RandomizeCodeQialityPolicy(int changeSize) {
+        int returnNo = 1;
+
+        if (isInBetween(changeSize, 10, 100)) {
+            returnNo = changeSize / 10;
+        } else if (isInBetween(changeSize, 1, 9)) {
+            returnNo = 1;
+        }
+        int rand = random.nextInt((1 - 0) + 1) + 0;
+        switch (rand) {
+            case 1:
+                //do nothing here as if random integer is 1 then returnNo will be positive.
+                break;
+            case 0:
+                //Make the returnNo negative if the random integer is 0.
+                returnNo = 0 - returnNo;
+                break;
+        }
+        return returnNo;
     }
 
     /**
@@ -483,12 +579,12 @@ public class ReceiveMessage extends CyclicBehaviour {
      * condition.</p>
      *
      * @param num The number to be tested
-     * @param lowerBoundary the lower boundary (exclusive)
+     * @param lowerBoundary the lower boundary (inclusive)
      * @param higherBoundary the higher boundary (inclusive)
      * @return true if with in the lower and higher boundary false otherwise.
      */
     public boolean isInBetween(int num, int lowerBoundary, int higherBoundary) {
-        return (num > lowerBoundary && num <= higherBoundary);
+        return (num >= lowerBoundary && num <= higherBoundary);
     }
 
     /**
@@ -502,15 +598,19 @@ public class ReceiveMessage extends CyclicBehaviour {
      */
     private class ContinuousEvolvution extends Behaviour {
 
+        private int numOfCycles = InitialiseVariable.numOfCycles;
+
         public ContinuousEvolvution(Agent agent) {
             super(agent);
         }
 
         @Override
         public void action() {
-            sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, REQUEST_MESSAGE_TYPE);
+
             try {
-                Thread.sleep(10000);
+                Thread.sleep(InitialiseVariable.timeInterval);
+                sendMessage(new AID(DEVELOPER_AGENT, AID.ISLOCALNAME), EVOLVE, REQUEST_MESSAGE_TYPE);
+                numOfCycles--;
             } catch (InterruptedException ex) {
                 Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -518,7 +618,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
         @Override
         public boolean done() {
-            return false;
+            return numOfCycles == 0;
         }
     }
 }

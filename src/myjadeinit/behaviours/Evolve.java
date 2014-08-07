@@ -15,8 +15,9 @@ import myjadeinit.extras.SystemSize;
  */
 public class Evolve extends Behaviour {
 
-    private int evoleBy = 1;
+    private int evoleBy = 0;
     private final SystemSize size;
+    private boolean done = false;
 
     /**
      * This constructor is mainly used when making normal evolution process to
@@ -34,8 +35,8 @@ public class Evolve extends Behaviour {
     /**
      * This constructor is used when
      * {@link myjadeinit.behaviours.RandomEvolution} is applied to the software
-     * system. This constructor provides indeterminate evolution to the software
-     * system.
+     * system. This constructor provides evolution to the software system based
+     * on random number generated passed in the constructor..
      *
      * @param agent: my agent
      * @param size: system size parameter
@@ -49,16 +50,22 @@ public class Evolve extends Behaviour {
 
     @Override
     public void action() {
-        while (done()) {
-            size.increaseSize();
-            System.out.println("Software size is: " + size.getSoftSize());
-            evoleBy--;
+        while (!done()) {
+            if (this.evoleBy != 0) {
+                size.increaseSize(evoleBy);
+                System.out.println("evolved by: " + evoleBy);
+                System.out.println("Software size is: " + size.getSoftSize());
+            } else {
+                size.increaseSize();
+                System.out.println("Software size is: " + size.getSoftSize());
+            }
+            done = true;
         }
     }
 
     @Override
     public boolean done() {
-        return evoleBy > 0;
+        return done;
     }
 
 }

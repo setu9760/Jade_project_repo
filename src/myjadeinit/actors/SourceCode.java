@@ -7,6 +7,7 @@ package myjadeinit.actors;
 
 import jade.core.Agent;
 import myjadeinit.behaviours.ReceiveMessage;
+import myjadeinit.extras.InitialiseVariable;
 import myjadeinit.extras.SourceCodeQuality;
 
 /**
@@ -14,19 +15,26 @@ import myjadeinit.extras.SourceCodeQuality;
  * @author Desai
  */
 public class SourceCode extends Agent {
-    
+
     private final SourceCodeQuality codeQuality;
     private ReceiveMessage receiveMesageBehaviour;
-    
+
     public SourceCode() {
-        this.codeQuality = new SourceCodeQuality(50);
+        this.codeQuality = new SourceCodeQuality(InitialiseVariable.CodeQuality);
     }
-    
+
     @Override
     protected void setup() {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
         receiveMesageBehaviour = new ReceiveMessage(this, codeQuality);
         addBehaviour(receiveMesageBehaviour);
     }
-    
+
+    @Override
+    protected void takeDown() {
+        System.out.println("Agent " + getLocalName() + " is terminated");
+        codeQuality.writeToFile();
+        doDelete();
+        super.takeDown();
+    }
 }

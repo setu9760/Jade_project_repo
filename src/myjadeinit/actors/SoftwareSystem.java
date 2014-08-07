@@ -7,6 +7,7 @@ package myjadeinit.actors;
 
 import jade.core.Agent;
 import myjadeinit.behaviours.ReceiveMessage;
+import myjadeinit.extras.InitialiseVariable;
 import myjadeinit.extras.SystemSize;
 
 /**
@@ -19,12 +20,19 @@ public class SoftwareSystem extends Agent {
     private ReceiveMessage receiveMessageBehaviour;
 
     public SoftwareSystem() {
-        this.size = new SystemSize(100);
+        this.size = new SystemSize(InitialiseVariable.SoftSize);
     }
 
     @Override
     protected void setup() {
         System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created, full name: " + getName());
+
+//        NewJFrame frame = new NewJFrame();
+//        frame.setVisible(true);
+//        frame.setAlwaysOnTop(true);
+//        frame.setAutoRequestFocus(true);
+//        frame.setUndecorated(true);
+//        frame.setDefaultCloseOperation(-1);
         receiveMessageBehaviour = new ReceiveMessage(this, size);
         /**
          * Adding a cyclic behaviour to the agent which detects incoming
@@ -37,6 +45,8 @@ public class SoftwareSystem extends Agent {
     @Override
     protected void takeDown() {
         System.out.println("Agent " + getLocalName() + " is terminated");
+        size.writeToFile();
+
         doDelete();
         super.takeDown();
     }
