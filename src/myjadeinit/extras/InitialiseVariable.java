@@ -5,8 +5,6 @@
  */
 package myjadeinit.extras;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
@@ -24,12 +22,12 @@ public class InitialiseVariable extends javax.swing.JFrame {
     public static int SoftSize = 100;
 
     /**
-     * This is default code quality which is 50;
+     * This is default code quality which is 50.
      */
     public static int CodeQuality = 50;
 
     /**
-     * This is default timeInteval between each iteration/cycle of evaluation;
+     * This is default timeInteval between each iteration/cycle of evaluation.
      */
     public static long timeInterval = 5000L;
 
@@ -37,6 +35,8 @@ public class InitialiseVariable extends javax.swing.JFrame {
      * This is default number of cycles which is 50.
      */
     public static int numOfCycles = 20;
+
+    public JOptionPane confirmDialog;
 
     /**
      * Creates new form NewJFrame
@@ -190,63 +190,76 @@ public class InitialiseVariable extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
-
+@SuppressWarnings("LocalVariableHidesMemberVariable")
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
 
-        if (!isEmpty(jComboBox1) && !isEmpty(jComboBox3) && !isEmpty(jComboBox4) && !isEmpty(jComboBox5)) {
-            @SuppressWarnings("LocalVariableHidesMemberVariable")
-            String numOfCycles = jComboBox1.getSelectedItem().toString();
-            @SuppressWarnings("LocalVariableHidesMemberVariable")
-            String timeInterval = jComboBox3.getSelectedItem().toString();
-            @SuppressWarnings("LocalVariableHidesMemberVariable")
-            String SoftSize = jComboBox4.getSelectedItem().toString();
-            @SuppressWarnings("LocalVariableHidesMemberVariable")
-            String CodeQuality = jComboBox5.getSelectedItem().toString();
+    if (!isEmpty(jComboBox1) && !isEmpty(jComboBox3) && !isEmpty(jComboBox4) && !isEmpty(jComboBox5)) {
 
-            String all = "Number of Cycles: " + numOfCycles;
-            all += "\nTime Interval: " + timeInterval;
-            all += "\nSoftware Size: " + SoftSize;
-            all += "\nCode Quality: " + CodeQuality;
+        String numOfCycles = jComboBox1.getSelectedItem().toString();
+        String timeInterval = jComboBox3.getSelectedItem().toString();
+        String SoftSize = jComboBox4.getSelectedItem().toString();
+        String CodeQuality = jComboBox5.getSelectedItem().toString();
 
-            try {
-                InitialiseVariable.SoftSize = Integer.parseInt(SoftSize);
-                InitialiseVariable.CodeQuality = Integer.parseInt(CodeQuality);
-                InitialiseVariable.timeInterval = Long.parseLong(timeInterval) * 1000; //multipying by 1000 because the user selects seconds and we need millisecods as parameter for thread sleep function.
+        String message = "Number of Cycles: " + numOfCycles;
+        message += "\nTime Interval: " + timeInterval;
+        message += "\nSoftware Size: " + SoftSize;
+        message += "\nCode Quality: " + CodeQuality;
+
+        try {
+
+            if (numOfCycles.equalsIgnoreCase("default")) {
+
+            } else {
                 InitialiseVariable.numOfCycles = Integer.parseInt(numOfCycles);
-            } catch (NumberFormatException ex) {
-                System.out.println("Proper software size or code quality not selected so using default size and quality");
-                Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
             }
+            if (timeInterval.equalsIgnoreCase("default")) {
 
-            JOptionPane.showConfirmDialog(this, all, "", JOptionPane.YES_NO_CANCEL_OPTION);
-            
-            
-            dispose();
-            try {
-                final Class clazz = Class.forName("jade.Boot");
-                final Method main = clazz.getMethod("main", String[].class);
-                final String[] params = {"-gui", "Developer:myjadeinit.actors.Developer;System:myjadeinit.actors.SoftwareSystem;SourceCode:myjadeinit.actors.SourceCode;User:myjadeinit.actors.User;Manager:myjadeinit.actors.ProjectManager"};
-                new Thread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            main.invoke(null, new Object[]{params});
-                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                            Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                }).start();
-            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException ex) {
-                Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
+            } else {
+                InitialiseVariable.timeInterval = Long.parseLong(timeInterval) * 1000; //multipying by 1000 because the user selects seconds and we need millisecods as parameter for thread sleep function.
             }
+            if (SoftSize.equalsIgnoreCase("default")) {
 
-        } else {
-            JOptionPane.showMessageDialog(null, "You did not select one of the option properly !!!", "ERROR", JOptionPane.ERROR_MESSAGE);
+            } else {
+                InitialiseVariable.SoftSize = Integer.parseInt(SoftSize);
+            }
+            if (CodeQuality.equalsIgnoreCase("default")) {
+
+            } else {
+                InitialiseVariable.CodeQuality = Integer.parseInt(CodeQuality);
+            }
+        } catch (NumberFormatException ex) {
+            System.out.println("Proper software size or code quality not selected so using default size and quality");
+            Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
         }
+        showDialogBox(message);
 
-
+    } else {
+        JOptionPane.showMessageDialog(null, "You did not select one of the option properly !!!", "ERROR", JOptionPane.ERROR_MESSAGE);
+    }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    public void showDialogBox(String message) {
+        int dialogSelection = JOptionPane.showConfirmDialog(this, message, "CONFIRM!!!", JOptionPane.YES_NO_CANCEL_OPTION);
+
+        switch (dialogSelection) {
+            case JOptionPane.CANCEL_OPTION:
+
+                break;
+            case JOptionPane.NO_OPTION:
+
+                break;
+
+            case JOptionPane.YES_OPTION:
+                try {
+                    jadeBootThread thread = new jadeBootThread();
+                    thread.start();
+                    dispose();
+                } catch (ClassNotFoundException | SecurityException | NoSuchMethodException ex) {
+                    Logger.getLogger(InitialiseVariable.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                break;
+        }
+    }
 
     public boolean isEmpty(JComboBox jbox) {
 

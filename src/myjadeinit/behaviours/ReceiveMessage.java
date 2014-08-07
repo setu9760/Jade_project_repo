@@ -156,7 +156,7 @@ public class ReceiveMessage extends CyclicBehaviour {
     private final Random random = new Random();
 
     /**
-     * This is constructor to be used in the SoftwareSystem agent.
+     * This is constructor to be used for the SoftwareSystem agent.
      *
      * @param agent: my agent
      * @param size: Software system size
@@ -168,7 +168,7 @@ public class ReceiveMessage extends CyclicBehaviour {
     }
 
     /**
-     * This constructor is to be used in the SourceCode Agent.
+     * This constructor is to be used for the SourceCode Agent.
      *
      * @param agent: my agent
      * @param codeQuality: Code quality of Software System
@@ -331,7 +331,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                          * This case statement adds continuous change request
                          * behaviour to the user agent /this will only be done
                          * once in the complete software evolution process
-                         * model. Refer to {}
+                         * model.
                          */
                         if (!USER_INIT_DONE) {
                             myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
@@ -346,7 +346,8 @@ public class ReceiveMessage extends CyclicBehaviour {
 
             } else if (myAgent instanceof SystemOwners) {
                 myAgent = (SystemOwners) myAgent;
-
+                //TODO
+                //Do something when th agent System owner receives the message
             } else if (myAgent instanceof ProjectManager) {
                 myAgent = (ProjectManager) myAgent;
                 switch (message) {
@@ -363,7 +364,7 @@ public class ReceiveMessage extends CyclicBehaviour {
                         //TODO:
                         break;
                     case DIE_MESSAGE:
-                        myAgent.doSuspend();
+                        myAgent.doDelete();
                         break;
                 }
 
@@ -376,7 +377,7 @@ public class ReceiveMessage extends CyclicBehaviour {
 
     private void printMessage(AID sender, String message) {
 
-        System.out.println(myAgent.getName() + " received a message from " + sender.getName());
+        System.out.println(myAgent.getLocalName() + " received a message from " + sender.getLocalName());
         System.out.println("Message: " + message);
 
     }
