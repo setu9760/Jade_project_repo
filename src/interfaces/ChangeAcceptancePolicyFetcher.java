@@ -15,19 +15,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package mainpackage;
-
-import myjadeinit.extras.InitialiseVariable;
+package interfaces;
 
 /**
  *
  * @author Desai
  */
-public class EntryPoint {
+public interface ChangeAcceptancePolicyFetcher {
 
-    public static void main(String[] args) {
-        InitialiseVariable frame = new InitialiseVariable();
-        frame.setVisible(true);
-    }
+    /**
+     * @param changeRequestSize
+     * @return
+     */
+    public int ChangeAcceptancePolicy(int changeRequestSize);
 
 }

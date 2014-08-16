@@ -17,17 +17,10 @@
  */
 package mainpackage;
 
-import myjadeinit.extras.InitialiseVariable;
-
 /**
  *
- * @author Desai
+ * @author S Desai
  */
-public class EntryPoint {
-
-    public static void main(String[] args) {
-        InitialiseVariable frame = new InitialiseVariable();
-        frame.setVisible(true);
-    }
-
+public class NewClass {
+    
 }

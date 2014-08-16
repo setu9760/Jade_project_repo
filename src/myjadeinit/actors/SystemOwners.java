@@ -1,11 +1,24 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2014 S Desai
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package myjadeinit.actors;
 
 import jade.core.Agent;
+import myjadeinit.behaviours.AbstractReceiveMessage;
 
 /**
  *
@@ -13,27 +26,46 @@ import jade.core.Agent;
  */
 public class SystemOwners extends Agent {
 
+    private ReceiveMessage receiveMessageBehaviour;
+
     @Override
     protected void setup() {
-        System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created, full name: " + getName());
-        Object[] args = getArguments();
-        String s;
-        if (args != null) {
-            for (int i = 0; i < args.length; i++) {
-                s = (String) args[i];
-                System.out.println("p" + i + ": " + s);
-            }
-
-            // Extracting the integer.
-            int i = Integer.parseInt((String) args[0]);
-            System.out.println("i*i= " + (i * i));
-
-        }
+        System.out.println("Agent: " + getLocalName() + " is created.");
+        receiveMessageBehaviour = new ReceiveMessage(this);
+        addBehaviour(receiveMessageBehaviour);
     }
 
     @Override
     protected void takeDown() {
         System.out.println("The agent: " + getLocalName() + " has been terminated");
+        doDelete();
+        super.takeDown();
+    }
+
+    private class ReceiveMessage extends AbstractReceiveMessage {
+
+        public ReceiveMessage(Agent agent) {
+            super(agent);
+        }
+
+        @Override
+        public void action() {
+            myAgent = (SystemOwners) myAgent;
+            aclmessage = myAgent.receive();
+            if (aclmessage != null) {
+                message = aclmessage.getContent().toLowerCase(locale);
+                printMessage(aclmessage.getSender(), message);
+                switch (message) {
+                    /**
+                     * Do something here if system owner receives particular
+                     * message.
+                     */
+
+                }
+            }
+            aclmessage = null;
+        }
+
     }
 
 }

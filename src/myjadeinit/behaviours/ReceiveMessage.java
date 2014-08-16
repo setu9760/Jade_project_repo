@@ -1,7 +1,19 @@
-/**
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates and open the template
- * in the editor.
+/* 
+ * Copyright (C) 2014 S Desai
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 package myjadeinit.behaviours;
 
@@ -194,181 +206,6 @@ public class ReceiveMessage extends CyclicBehaviour {
         if (aclmessage != null) {
             message = aclmessage.getContent().toLowerCase(locale);
             printMessage(aclmessage.getSender(), message);
-
-            if (myAgent instanceof SoftwareSystem) {
-                myAgent = (SoftwareSystem) myAgent;
-                if (message.contains(EVOLVE_BY)) {
-                    String[] messages = message.split(MESSAGE_SPLITTER);
-                    try {
-                        int evolveBy = Integer.parseInt(messages[1]);
-                        myAgent.addBehaviour(new Evolve(myAgent, size, evolveBy));
-                        sendMessage(SOURCECODE_AID, RANDOM_REFACTORING + MESSAGE_SPLITTER + evolveBy, REQUEST_MESSAGE_TYPE);
-                        //sendMessage(SOURCECODE_AID, DEFACTOR, REQUEST_MESSAGE_TYPE);
-                    } catch (NumberFormatException ex) {
-                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-
-                }
-                switch (message) {
-                    case REQUEST_SOFTWARE_SIZE:
-                        if (size != null) {
-                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + MESSAGE_SPLITTER + String.valueOf(size.getSoftSize()), DEFAULT_MESSAGE_TYPE);
-                        } else {
-                            sendMessage(DEVELOPER_AID, RETURN_SOFTWARE_SIZE + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
-                        }
-                        break;
-                    case EVOLVE:
-                        myAgent.addBehaviour(new Evolve(myAgent, size));
-                        sendMessage(SOURCECODE_AID, DEFACTOR, DEFAULT_MESSAGE_TYPE);
-                        break;
-                    case DEGENERATE:
-                        myAgent.addBehaviour(new Degenarate(myAgent, size));
-                        break;
-                    case DIE_MESSAGE:
-                        sendMessage(DEVELOPER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(USER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(MANAGER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        myAgent.doSuspend();
-                        break;
-                }
-
-            } else if (myAgent instanceof SourceCode) {
-                myAgent = (SourceCode) myAgent;
-
-                if (message.contains(RANDOM_REFACTORING)) {
-                    String[] messages = message.split(MESSAGE_SPLITTER);
-                    try {
-                        int changeSize = Integer.parseInt(messages[1]);
-                        int randomRefactoringNumber = RandomizeCodeQialityPolicy(changeSize);
-                        if (randomRefactoringNumber > 0) {
-                            myAgent.addBehaviour(new Refactor(myAgent, codeQuality, randomRefactoringNumber));
-                        } else if (randomRefactoringNumber < 0) {
-                            //multiplying by -1 because the returning number will be negative but the constructor must be passed with 
-                            //positive number which then will be subtracted from the code quality.
-                            myAgent.addBehaviour(new Defactor(myAgent, codeQuality, (-1) * randomRefactoringNumber));
-                        }
-                    } catch (NumberFormatException ex) {
-                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-
-                switch (message) {
-                    case REFACTOR:
-                        myAgent.addBehaviour(new Refactor(myAgent, codeQuality));
-                        sendMessage(DEVELOPER_AID, "Refactoring done", DEFAULT_MESSAGE_TYPE);
-                        break;
-                    case DEFACTOR:
-                        myAgent.addBehaviour(new Defactor(myAgent, codeQuality));
-                        break;
-                    case REQUEST_CODE_QUALITY:
-                        if (codeQuality != null) {
-                            sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + String.valueOf(codeQuality.getCodeQuality()), DEFAULT_MESSAGE_TYPE);
-                        } else {
-                            sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
-                        }
-                        break;
-                }
-
-            } else if (myAgent instanceof Developer) {
-                //Just casting the agent
-                myAgent = (Developer) myAgent;
-                if (message.contains(RETURN_SOFTWARE_SIZE)) {
-                    String[] messages = message.split(MESSAGE_SPLITTER);
-                    try {
-                        int systemSize = Integer.parseInt(messages[1]);
-                        message = String.valueOf(systemSize);
-                        sendMessage(DEVELOPER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
-                    } catch (NumberFormatException ex) {
-                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else if (message.contains(RETURN_CODE_QUALITY)) {
-                    String[] messages = message.split(MESSAGE_SPLITTER);
-                    try {
-                        int CodeQuality = Integer.parseInt(messages[1]);
-                        message = String.valueOf(CodeQuality);
-
-                        //TODO: do something to apply refactoring or defactoring in each loop
-                    } catch (NumberFormatException ex) {
-                        Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } else {
-                    switch (message) {
-                        case EVOLVE:
-                            sendMessage(SYSTEM_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
-                            break;
-                        case REFACTOR:
-                            sendMessage(SOURCECODE_AID, REFACTOR, DEFAULT_MESSAGE_TYPE);
-                            break;
-                        case REQUEST_REQUIREMENT_CHANGE:
-                            ChangeRequirement change = new ChangeRequirement();
-                            switch (ChangeAcceptancePolicy(change.getChangeRequirementSize())) {
-                                case 1:
-                                    System.out.println("change size is :" + change.getChangeRequirementSize());
-                                    System.out.println("change is accepted");
-                                    sendMessage(SYSTEM_AID, EVOLVE_BY + "," + change.getChangeRequirementSize(), REQUEST_MESSAGE_TYPE);
-                                    break;
-                                case 0:
-                                    System.out.println("change size was :" + change.getChangeRequirementSize());
-                                    System.out.println("change is rejected");
-                                    sendMessage(MANAGER_AID, DECLINE_REQUIREMENT_CHANGE, ACLMessage.REFUSE);
-                                    break;
-                            }
-
-                            break;
-                        case "":
-                            //TODO:
-                            break;
-                        case DIE_MESSAGE:
-                            myAgent.doDelete();
-                            break;
-                    }
-                }
-            } else if (myAgent instanceof User) {
-                myAgent = (User) myAgent;
-                switch (message) {
-                    case DEFAULT_HELLO:
-                        /**
-                         * This case statement adds continuous change request
-                         * behaviour to the user agent /this will only be done
-                         * once in the complete software evolution process
-                         * model.
-                         */
-                        if (!USER_INIT_DONE) {
-                            myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
-                            USER_INIT_DONE = true;
-                        }
-                        // myAgent.addBehaviour(new ContinuousEvolvution(myAgent));
-                        break;
-                    case DIE_MESSAGE:
-                        myAgent.doSuspend();
-                        break;
-                }
-
-            } else if (myAgent instanceof SystemOwners) {
-                myAgent = (SystemOwners) myAgent;
-                //TODO
-                //Do something when th agent System owner receives the message
-            } else if (myAgent instanceof ProjectManager) {
-                myAgent = (ProjectManager) myAgent;
-                switch (message) {
-                    case EVOLVE:
-                        sendMessage(DEVELOPER_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
-                        break;
-                    case REQUEST_REQUIREMENT_CHANGE:
-                        sendMessage(DEVELOPER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
-                        break;
-                    case ACCEPT_REQUIREMENT_CHANGE:
-                        //TODO:
-                        break;
-                    case DECLINE_REQUIREMENT_CHANGE:
-                        //TODO:
-                        break;
-                    case DIE_MESSAGE:
-                        myAgent.doDelete();
-                        break;
-                }
-
-            }
 
             // last line of the if block to release the aclmessage object from memory and reuse it again as this class extends CyclicBehaviour.
             aclmessage = null;
@@ -583,7 +420,7 @@ public class ReceiveMessage extends CyclicBehaviour {
      * @param higherBoundary the higher boundary (inclusive)
      * @return true if with in the lower and higher boundary false otherwise.
      */
-    public boolean isInBetween(int num, int lowerBoundary, int higherBoundary) {
+    protected final boolean isInBetween(int num, int lowerBoundary, int higherBoundary) {
         return (num >= lowerBoundary && num <= higherBoundary);
     }
 
