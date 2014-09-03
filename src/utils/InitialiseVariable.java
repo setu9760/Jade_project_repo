@@ -15,18 +15,19 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package myjadeinit.extras;
+package utils;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
  *
  * @author Desai
  */
-public class InitialiseVariable extends javax.swing.JFrame {
+public class InitialiseVariable extends JFrame {
 
     /**
      * This is default software size which is 100.
@@ -39,12 +40,13 @@ public class InitialiseVariable extends javax.swing.JFrame {
     public static int CodeQuality = 50;
 
     /**
-     * This is default timeInteval between each iteration/cycle of evaluation.
+     * This is default timeInteval between each iteration/cycle of evaluation
+     * which is 2 seconds.
      */
-    public static long timeInterval = 5000L;
+    public static long timeInterval = 2000L;
 
     /**
-     * This is default number of cycles which is 50.
+     * This is default number of cycles which is 20.
      */
     public static int numOfCycles = 20;
 

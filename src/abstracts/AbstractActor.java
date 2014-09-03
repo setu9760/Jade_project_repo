@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2014 S Desai
  *
  * This program is free software; you can redistribute it and/or
@@ -15,19 +15,31 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package mainpackage;
+package abstracts;
 
-import utils.InitialiseVariable;
+import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 
 /**
  *
- * @author Desai
+ * @author S Desai
  */
-public class EntryPoint {
+public abstract class AbstractActor extends Agent {
 
-    public static void main(String[] args) {
-        InitialiseVariable frame = new InitialiseVariable();
-        frame.setVisible(true);
+    protected CyclicBehaviour ReceiveMessage;
+
+    @Override
+    protected void takeDown() {
+        System.out.println("Agent " + getLocalName() + " is terminated");
+        doDelete();
+        super.takeDown();
     }
+
+    protected final void welcomMessage() {
+        System.out.println("Agent: " + getLocalName() + " is created.");
+    }
+
+    @Override
+    protected abstract void setup();
 
 }

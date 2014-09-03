@@ -18,15 +18,25 @@
 package interfaces;
 
 /**
+ * This interface needs to implemented by the ReceiveMessage behaviour of
+ * SourceCode agent. This implementation gives the programmer freedom to
+ * manipulate the policy while coding other features in future implementation.
+ * <p>
+ * This interface <i>MUST</i> not be implemented by any other agent as the other
+ * agents do not make use of it's method in current code.</p>
+ *
  *
  * @author Desai
  */
-public interface ChangeAcceptancePolicyFetcher {
+public interface RandomizeCodeQualityPolicyFetcher {
 
     /**
-     * @param changeRequestSize
-     * @return
+     * This method must be implemented in such a way that the resulting change
+     * in code quality is decided from this policy.
+     *
+     * @param changeSize Size of the change applied to the software system.
+     * @return the number by which the code quality will be affected.
      */
-    public int ChangeAcceptancePolicy(int changeRequestSize);
+    public int RandomizeCodeQialityPolicy(int changeSize);
 
 }
