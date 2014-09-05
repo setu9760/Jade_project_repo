@@ -61,7 +61,9 @@ public class RecordsWriter implements Runnable {
 
     private final String FILE;
 
-    private final String WORKSHEET;
+    private final String WORKSHEET1;
+
+    private final String WORKSHEET2;
 
     private final Date date;
 
@@ -94,7 +96,9 @@ public class RecordsWriter implements Runnable {
                 FILE = "raw/unknown.xls";
                 break;
         }
-        this.WORKSHEET = "Record @ " + dateFormatter.format(date);
+        //this.WORKSHEET1 = "Record @ " + dateFormatter.format(date);
+        this.WORKSHEET1 = "Sheet1";
+        this.WORKSHEET2 = "Sheet2";
     }
 
     @Override
@@ -126,8 +130,10 @@ public class RecordsWriter implements Runnable {
 
             fileOutputStream = new FileOutputStream(file);
 
-            worksheet = workbook.createSheet(WORKSHEET);
-
+            //worksheet = workbook.createSheet(WORKSHEET1);
+            workbook.createSheet(WORKSHEET1);
+            workbook.createSheet(WORKSHEET2);
+            worksheet = workbook.getSheet(WORKSHEET1);
             Set<String> keySet = records.keySet();
             int rowNum = 0;
 
@@ -150,6 +156,7 @@ public class RecordsWriter implements Runnable {
                 row.createCell(1).setCellValue(Integer.parseInt(records.get(key)));
             }
             workbook.write(fileOutputStream);
+            System.out.println("Records writen to the file succesfully.");
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(RecordsWriter.class.getName()).log(Level.SEVERE, null, ex);

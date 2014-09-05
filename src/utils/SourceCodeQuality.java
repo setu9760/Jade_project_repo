@@ -113,6 +113,17 @@ public final class SourceCodeQuality implements Serializable {
     }
 
     /**
+     * This method checks whether the code quality has reached 0. It is used
+     * before applying defactoring behaviour to make sure the quality does not
+     * reach negative number.
+     *
+     * @return <i>true if the code quality is 0, false otherwise.</i>
+     */
+    public boolean isBelowZero() {
+        return CodeQuality <= 0;
+    }
+
+    /**
      * This method records the time stamp and the code quality in a tree map
      * which then is used to write the values to excel file.
      * <p>

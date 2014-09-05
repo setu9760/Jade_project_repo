@@ -20,13 +20,8 @@ package actors;
 import abstracts.AbstractActor;
 import abstracts.AbstractMessageReceiver;
 import interfaces.ChangeAcceptancePolicyFetcher;
-import jade.core.AID;
 import jade.core.Agent;
-import jade.lang.acl.ACLMessage;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import utils.ChangeRequirement;
-import utils.InitialiseVariable;
 
 /**
  *
@@ -38,7 +33,7 @@ public class Developer extends AbstractActor {
 
     @Override
     protected void setup() {
-        System.out.println("Hello World!!!! \n Agent: " + getLocalName() + " is created.");
+        welcomMessage();
         receiveMessageBehaviour = new ReceiveMessage(this);
         addBehaviour(receiveMessageBehaviour);
 
@@ -84,8 +79,8 @@ public class Developer extends AbstractActor {
                     case "":
                         //TODO:
                         break;
-                    case DIE_MESSAGE:
-                        myAgent.doDelete();
+                    case SUSPEND_MESSAGE:
+                        doSuspend();
                         break;
                 }
             }

@@ -47,8 +47,7 @@ public class ProjectManager extends AbstractActor {
             myAgent = (ProjectManager) myAgent;
             aclmessage = myAgent.receive();
             if (aclmessage != null) {
-                message = aclmessage.getContent().toLowerCase(locale);
-
+                getMessageFromACL();
                 switch (message) {
                     case EVOLVE:
                         sendMessage(DEVELOPER_AID, EVOLVE, DEFAULT_MESSAGE_TYPE);
@@ -62,9 +61,8 @@ public class ProjectManager extends AbstractActor {
                     case DECLINE_REQUIREMENT_CHANGE:
                         sendMessage(USER_AID, DECLINE_REQUIREMENT_CHANGE, REJECT_MESSAGE_TYPE);
                         break;
-                    case DIE_MESSAGE:
-                        myAgent.doSuspend();
-                        myAgent.doDelete();
+                    case SUSPEND_MESSAGE:
+                        doSuspend();
                         break;
                 }
             }

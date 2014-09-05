@@ -31,6 +31,7 @@ public abstract class AbstractActor extends Agent {
     @Override
     protected void takeDown() {
         System.out.println("Agent " + getLocalName() + " is terminated");
+        doSuspend();
         doDelete();
         super.takeDown();
     }

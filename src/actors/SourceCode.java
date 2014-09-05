@@ -51,7 +51,6 @@ public class SourceCode extends AbstractActor {
     @Override
     protected void takeDown() {
         codeQuality.writeToFile();
-        doDelete();
         super.takeDown();
     }
 
@@ -77,7 +76,12 @@ public class SourceCode extends AbstractActor {
                         } else if (randomRefactoringNumber < 0) {
                             //multiplying by -1 because the returning number will be negative but the constructor must be passed with 
                             //positive number which then will be subtracted from the code quality.
-                            myAgent.addBehaviour(new Defactor(myAgent, codeQuality, (-1) * randomRefactoringNumber));
+                            if (codeQuality.isBelowZero()) {
+                                sendMessage(SYSTEM_AID, SUSPEND_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                                System.out.println("Code Quality reached 0. All the agents will terminate now.");
+                            } else {
+                                myAgent.addBehaviour(new Defactor(myAgent, codeQuality, (-1) * randomRefactoringNumber));
+                            }
                         }
                     } catch (NumberFormatException ex) {
                         Logger.getLogger(ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
@@ -98,6 +102,9 @@ public class SourceCode extends AbstractActor {
                         } else {
                             sendMessage(DEVELOPER_AID, RETURN_CODE_QUALITY + MESSAGE_SPLITTER + ERROR_MESSAGE, FAILURE_MESSAGE_TYPE);
                         }
+                        break;
+                    case SUSPEND_MESSAGE:
+                        doSuspend();
                         break;
                 }
             }

@@ -55,7 +55,6 @@ public class SoftwareSystem extends AbstractActor {
     @Override
     protected void takeDown() {
         size.writeToFile();
-        doDelete();
         super.takeDown();
     }
 
@@ -98,11 +97,12 @@ public class SoftwareSystem extends AbstractActor {
                     case DEGENERATE:
                         myAgent.addBehaviour(new Degenarate(myAgent, size));
                         break;
-                    case DIE_MESSAGE:
-                        sendMessage(DEVELOPER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(USER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        sendMessage(MANAGER_AID, DIE_MESSAGE, DEFAULT_MESSAGE_TYPE);
-                        myAgent.doSuspend();
+                    case SUSPEND_MESSAGE:
+                        sendMessage(DEVELOPER_AID, SUSPEND_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(SOURCECODE_AID, SUSPEND_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(USER_AID, SUSPEND_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        sendMessage(MANAGER_AID, SUSPEND_MESSAGE, DEFAULT_MESSAGE_TYPE);
+                        doSuspend();
                         break;
                 }
             }

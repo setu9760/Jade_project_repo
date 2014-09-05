@@ -47,8 +47,7 @@ public class SystemOwners extends AbstractActor {
             myAgent = (SystemOwners) myAgent;
             aclmessage = myAgent.receive();
             if (aclmessage != null) {
-                message = aclmessage.getContent().toLowerCase(locale);
-                printMessage(aclmessage.getSender(), message);
+                getMessageFromACL();
                 switch (message) {
                     /**
                      * Do something here if system owner receives particular

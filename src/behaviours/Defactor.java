@@ -64,13 +64,7 @@ public class Defactor extends Behaviour {
     public void action() {
         while (!done()) {
 
-            if (codeQuality.getCodeQuality() == 1) {
-                ACLMessage aclMessage = new ACLMessage(ACLMessage.INFORM);
-                aclMessage.addReceiver(new AID("System", AID.ISLOCALNAME));
-                aclMessage.setContent("die");
-                myAgent.send(aclMessage);
-                myAgent.doDelete();
-            } else {
+            if (!codeQuality.isBelowZero()) {
                 if (this.DefactorBy != 0) {
                     codeQuality.decreaseQuality(DefactorBy);
                     System.out.println("Quality decreased by: " + DefactorBy);
@@ -79,6 +73,11 @@ public class Defactor extends Behaviour {
                     codeQuality.decreaseQuality();
                     System.out.println("Code Quality is: " + codeQuality.getCodeQuality());
                 }
+            } else {
+                ACLMessage aclMessage = new ACLMessage(ACLMessage.INFORM);
+                aclMessage.addReceiver(new AID("System", AID.ISLOCALNAME));
+                aclMessage.setContent("suspend");
+                myAgent.send(aclMessage);
             }
             done = true;
         }

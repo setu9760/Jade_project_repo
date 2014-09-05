@@ -94,7 +94,7 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
     protected final String DEFAULT_HELLO = "hello";
     /**
      */
-    protected final String DIE_MESSAGE = "die";
+    protected final String SUSPEND_MESSAGE = "suspend";
     /**
      */
     protected final String DEFAULT_MESSAGE = "This is a default string for the message, null value was passed in the message content";
@@ -184,7 +184,6 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
     public final String returnContentMessage() {
         if (aclmessage != null) {
             return message;
-
         }
         return "";
     }
@@ -251,7 +250,7 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
      *
      * @param message
      */
-    private void defaultReply(ACLMessage message) {
+    protected final void defaultReply(ACLMessage message) {
 
         ACLMessage reply = message.createReply();
         reply.setPerformative(DEFAULT_MESSAGE_TYPE);
@@ -268,7 +267,7 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
      * This method does not serve any processing purpose in term of this
      * project, it can simply be removed if not required</p>
      */
-    private void waitThread() {
+    protected final void waitThread() {
         try {
             Thread.sleep(1500);
         } catch (InterruptedException ex) {
