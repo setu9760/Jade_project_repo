@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2014 S Desai
  *
  * This program is free software; you can redistribute it and/or
@@ -15,19 +15,30 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package mainpackage;
+package utils;
 
-import utils.InitialiseVariable;
+import javax.swing.JOptionPane;
 
 /**
  *
- * @author Desai
+ * @author S Desai
  */
-public class EntryPoint {
+public class FinalAlert implements Runnable {
 
-    public static void main(String[] args) {
-        InitialiseVariable frame = new InitialiseVariable();
-        frame.setVisible(true);
+    public static JOptionPane finalAlert;
+    private static boolean isVisible = false;
+
+    public static void showFinalAlert() {
+
+        if (!isVisible) {
+            JOptionPane.showConfirmDialog(null, "All Iterations complete", "DONE !!!", JOptionPane.OK_CANCEL_OPTION);
+            isVisible = true;
+        }
+    }
+
+    @Override
+    public void run() {
+        showFinalAlert();
     }
 
 }

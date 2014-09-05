@@ -1,9 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Copyright (C) 2014 S Desai
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-package myjadeinit.extras;
+package utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,6 +28,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -46,11 +59,15 @@ public class RecordsWriter implements Runnable {
 
     private final Map<String, String> records;
 
-    private final String PATH;
+    private final String FILE;
 
-    private final String WORKSHEET;
+    private final String WORKSHEET1;
+
+    private final String WORKSHEET2;
 
     private final Date date;
+
+    DateFormatUtils d = new DateFormatUtils();
 
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM--HH.mm.ss");
 
@@ -58,24 +75,30 @@ public class RecordsWriter implements Runnable {
 
     public static final String RECORD_NAME_CODEQUALITY = "CodeQuality";
 
+    public final File DIRECTORY;
+
     public RecordsWriter(Map<String, String> records, String recordName) {
+
+        DIRECTORY = new File(System.getProperty("user.home") + "/results");
 
         this.records = new TreeMap<>(records);
         date = new Date();
         switch (recordName) {
             case RECORD_NAME_SOFTSIZE:
-                PATH = "raw/" + dateFormatter.format(date) + "-SoftwareSize.xls";
+                FILE = DIRECTORY.getAbsolutePath() + "/" + dateFormatter.format(date) + "-SoftwareSize.xls";
                 //PATH = "raw/SoftwareSize.xls";
                 break;
             case RECORD_NAME_CODEQUALITY:
-                PATH = "raw/" + dateFormatter.format(date) + "-CodeQuality.xls";
+                FILE = DIRECTORY.getAbsolutePath() + "/" + dateFormatter.format(date) + "-CodeQuality.xls";
                 //PATH = "raw/CodeQuality.xls";
                 break;
             default:
-                PATH = "raw/unknown.xls";
+                FILE = "raw/unknown.xls";
                 break;
         }
-        this.WORKSHEET = "Record @ " + dateFormatter.format(date);
+        //this.WORKSHEET1 = "Record @ " + dateFormatter.format(date);
+        this.WORKSHEET1 = "Sheet1";
+        this.WORKSHEET2 = "Sheet2";
     }
 
     @Override
@@ -92,7 +115,12 @@ public class RecordsWriter implements Runnable {
      */
     public void writeToFile() {
         try {
-            file = new File(PATH);
+
+            if (!DIRECTORY.isDirectory()) {
+                DIRECTORY.mkdir();
+            }
+
+            file = new File(FILE);
 
             if (file.exists()) {
                 workbook = (HSSFWorkbook) WorkbookFactory.create(file);
@@ -102,8 +130,10 @@ public class RecordsWriter implements Runnable {
 
             fileOutputStream = new FileOutputStream(file);
 
-            worksheet = workbook.createSheet(WORKSHEET);
-
+            //worksheet = workbook.createSheet(WORKSHEET1);
+            workbook.createSheet(WORKSHEET1);
+            workbook.createSheet(WORKSHEET2);
+            worksheet = workbook.getSheet(WORKSHEET1);
             Set<String> keySet = records.keySet();
             int rowNum = 0;
 
@@ -114,9 +144,9 @@ public class RecordsWriter implements Runnable {
 
             cell = row.createCell(1);
             cell.setCellStyle(style());
-            if (PATH.contains(RECORD_NAME_SOFTSIZE)) {
+            if (FILE.contains(RECORD_NAME_SOFTSIZE)) {
                 cell.setCellValue("SoftSize");
-            } else if (PATH.contains(RECORD_NAME_CODEQUALITY)) {
+            } else if (FILE.contains(RECORD_NAME_CODEQUALITY)) {
                 cell.setCellValue("CodeQuality");
             }
 
@@ -126,6 +156,7 @@ public class RecordsWriter implements Runnable {
                 row.createCell(1).setCellValue(Integer.parseInt(records.get(key)));
             }
             workbook.write(fileOutputStream);
+            System.out.println("Records writen to the file succesfully.");
 
         } catch (FileNotFoundException ex) {
             Logger.getLogger(RecordsWriter.class.getName()).log(Level.SEVERE, null, ex);
