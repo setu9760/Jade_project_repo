@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
@@ -35,9 +37,11 @@ public final class SourceCodeQuality implements Serializable {
     private int CodeQuality;
 
     private Date date;
-
+    /**
+     */
     private final Map<String, String> records;
-
+    /**
+     */
     private final DateFormat dateFormatter;
 
     /**
@@ -46,6 +50,9 @@ public final class SourceCodeQuality implements Serializable {
      */
     public SourceCodeQuality(int CodeQuality) {
         this.CodeQuality = CodeQuality;
+        if (isBelowZero()) {
+            this.CodeQuality = 30;
+        }
         dateFormatter = new SimpleDateFormat("HH:mm:ss");
         records = new TreeMap<>();
         logRecords();
@@ -63,6 +70,10 @@ public final class SourceCodeQuality implements Serializable {
      */
     public void setCodeQuality(int CodeQuality) {
         this.CodeQuality = CodeQuality;
+        if (isBelowZero()) {
+            this.CodeQuality = 30;
+        }
+
     }
 
     /**
@@ -84,7 +95,11 @@ public final class SourceCodeQuality implements Serializable {
      * @param increaseBy the value by which the code quality is to be increased.
      */
     public void increaseQuality(int increaseBy) {
-        this.CodeQuality += increaseBy;
+        if (increaseBy > 0) {
+            this.CodeQuality += increaseBy;
+        } else {
+            increaseQuality();
+        }
         logRecords();
     }
 
@@ -109,6 +124,8 @@ public final class SourceCodeQuality implements Serializable {
         if (decreaseBy > 0) {
             this.CodeQuality -= decreaseBy;
             logRecords();
+        } else {
+            decreaseQuality();
         }
     }
 
@@ -131,7 +148,8 @@ public final class SourceCodeQuality implements Serializable {
      * manner as they are taken and to avoid unnecessary duplicate time stamp
      * values.</p>
      */
-    public final void logRecords() {
+    @SuppressWarnings("FinalPrivateMethod")
+    private final void logRecords() {
         if (records != null) {
             date = new Date();
             records.put(dateFormatter.format(date), String.valueOf(CodeQuality));
@@ -147,4 +165,34 @@ public final class SourceCodeQuality implements Serializable {
         Thread thread = new Thread(new RecordsWriter(records, RecordsWriter.RECORD_NAME_CODEQUALITY));
         Runtime.getRuntime().addShutdownHook(thread);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Code quality is: ");
+        sb.append(CodeQuality);
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(7, 31)
+                .append(CodeQuality)
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof SourceCodeQuality)) {
+            return false;
+        }
+        if (object == this) {
+            return true;
+        }
+        SourceCodeQuality quality = (SourceCodeQuality) object;
+        return new EqualsBuilder()
+                .append(CodeQuality, quality.CodeQuality)
+                .isEquals();
+    }
+
 }

@@ -26,8 +26,15 @@ import jade.core.behaviours.CyclicBehaviour;
  */
 public abstract class AbstractActor extends Agent {
 
-    protected CyclicBehaviour ReceiveMessage;
+    protected CyclicBehaviour receiveMessageBehaviour;
 
+    /**
+     * This method is called by the JADE framework when the agent is taken down
+     * from the container. Developers are advised not to call this method
+     * explicitly as it gets called automatically. Developers can override this
+     * method to achieve different functionalities at the time of agent
+     * termination.
+     */
     @Override
     protected void takeDown() {
         System.out.println("Agent " + getLocalName() + " is terminated");
@@ -36,7 +43,14 @@ public abstract class AbstractActor extends Agent {
         super.takeDown();
     }
 
-    protected final void welcomMessage() {
+    /**
+     * This method should be called as the first line of setup() method for any
+     * agent. It provides welcome message printed in the consol or in the
+     * command prompt giving information of succesfull agent creation. This
+     * method can be overridden of the developer wants some particular
+     * functionality to be achieved at the time of agent creation.
+     */
+    protected void welcomMessage() {
         System.out.println("Agent: " + getLocalName() + " is created.");
     }
 

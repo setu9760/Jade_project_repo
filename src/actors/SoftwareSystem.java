@@ -34,7 +34,7 @@ import utils.SystemSize;
 public class SoftwareSystem extends AbstractActor {
 
     public SystemSize size;
-    private ReceiveMessage receiveMessageBehaviour;
+    //private ReceiveMessage receiveMessageBehaviour;
 
     public SoftwareSystem() {
         this.size = new SystemSize(InitialiseVariable.SoftSize);

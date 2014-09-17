@@ -37,18 +37,18 @@ public class InitialiseVariable extends JFrame {
     /**
      * This is default code quality which is 50.
      */
-    public static int CodeQuality = 50;
+    public static int CodeQuality = 60;
 
     /**
      * This is default timeInteval between each iteration/cycle of evaluation
      * which is 2 seconds.
      */
-    public static long timeInterval = 2000L;
+    public static long timeInterval = 1000L;
 
     /**
      * This is default number of cycles which is 20.
      */
-    public static int numOfCycles = 20;
+    public static int numOfCycles = 30;
 
     public JOptionPane confirmDialog;
 

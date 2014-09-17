@@ -18,6 +18,8 @@
 package utils;
 
 import java.util.Random;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
@@ -80,4 +82,32 @@ public class ChangeRequirement {
     private boolean changeIsValid(int changeRequirementSize) {
         return changeRequirementSize >= 0 && changeRequirementSize <= 100;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Change Requirement size is: ");
+        sb.append(this.changeRequirementSize);
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(7, 37)
+                .append(this.changeRequirementSize)
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof ChangeRequirement)) {
+            return false;
+        }
+        if (object == this) {
+            return true;
+        }
+        ChangeRequirement changeRequirement = (ChangeRequirement) object;
+        return new EqualsBuilder().append(changeRequirementSize, changeRequirement.changeRequirementSize).isEquals();
+    }
+
 }

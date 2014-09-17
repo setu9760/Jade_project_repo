@@ -31,22 +31,22 @@ import utils.InitialiseVariable;
  * @author Desai
  */
 public class User extends AbstractActor {
-    
-    private ReceiveMessage receiveMessageBehaviour;
-    
+
+    //private ReceiveMessage receiveMessageBehaviour;
+
     @Override
     protected void setup() {
         welcomMessage();
         receiveMessageBehaviour = new ReceiveMessage(this);
         addBehaviour(receiveMessageBehaviour);
     }
-    
+
     private class ReceiveMessage extends AbstractMessageReceiver {
-        
+
         public ReceiveMessage(Agent agent) {
             super(agent);
         }
-        
+
         @Override
         public void action() {
             myAgent = (User) myAgent;
@@ -71,32 +71,58 @@ public class User extends AbstractActor {
                         doSuspend();
                         break;
                 }
-                
+
             }
             aclmessage = null;
         }
-        
+
         private class ContinuousEvolvution extends Behaviour {
-            
+
             private int numOfCycles = InitialiseVariable.numOfCycles;
-            
+
             public ContinuousEvolvution(Agent agent) {
                 super(agent);
             }
-            
+
             @Override
             public void action() {
-                
+
                 try {
                     Thread.sleep(InitialiseVariable.timeInterval);
                     sendMessage(MANAGER_AID, EVOLVE, REQUEST_MESSAGE_TYPE);
                     numOfCycles--;
-                    
+
                 } catch (InterruptedException ex) {
                     Logger.getLogger(actors.User.ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            
+
+            @Override
+            public boolean done() {
+                return numOfCycles == 0;
+            }
+        }
+
+        private class ContinuousChageRequest extends Behaviour {
+
+            private int numOfCycles = InitialiseVariable.numOfCycles;
+
+            public ContinuousChageRequest(Agent agent) {
+                super(agent);
+            }
+
+            @Override
+            public void action() {
+                try {
+                    Thread.sleep(InitialiseVariable.timeInterval);
+                    sendMessage(MANAGER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
+                    numOfCycles--;
+
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(actors.User.ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
             @Override
             public boolean done() {
                 if (numOfCycles == 0) {
@@ -105,34 +131,8 @@ public class User extends AbstractActor {
                 }
                 return numOfCycles == 0;
             }
-        }
-        
-        private class ContinuousChageRequest extends Behaviour {
-            
-            private int numOfCycles = InitialiseVariable.numOfCycles;
-            
-            public ContinuousChageRequest(Agent agent) {
-                super(agent);
-            }
-            
-            @Override
-            public void action() {
-                try {
-                    Thread.sleep(InitialiseVariable.timeInterval);
-                    sendMessage(MANAGER_AID, REQUEST_REQUIREMENT_CHANGE, REQUEST_MESSAGE_TYPE);
-                    numOfCycles--;
-                    
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(actors.User.ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-            
-            @Override
-            public boolean done() {
-                return numOfCycles == 0;
-            }
-            
+
         }
     }
-    
+
 }

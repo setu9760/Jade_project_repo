@@ -23,6 +23,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  *
@@ -107,7 +109,8 @@ public final class SystemSize implements Serializable {
      * manner as they are taken and to avoid unnecessary duplicate time stamp
      * values.</p>
      */
-    public final void logRecord() {
+    @SuppressWarnings("FinalPrivateMethod")
+    private final void logRecord() {
         if (records != null) {
             date = new Date();
             records.put(dateFormatter.format(date), String.valueOf(SoftSize));
@@ -122,6 +125,35 @@ public final class SystemSize implements Serializable {
 
         Thread thread = new Thread(new RecordsWriter(records, RecordsWriter.RECORD_NAME_SOFTSIZE));
         Runtime.getRuntime().addShutdownHook(thread);
-
     }
+
+    @Override
+    public String toString() {
+        return new StringBuilder()
+                .append("Software size is: ")
+                .append(SoftSize)
+                .toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(7, 31)
+                .append(SoftSize)
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (!(object instanceof SystemSize)) {
+            return false;
+        }
+        if (object == this) {
+            return true;
+        }
+        SystemSize size = (SystemSize) object;
+        return new EqualsBuilder()
+                .append(SoftSize, size.SoftSize)
+                .isEquals();
+    }
+
 }

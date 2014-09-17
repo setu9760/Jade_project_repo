@@ -35,7 +35,7 @@ import utils.SourceCodeQuality;
 public class SourceCode extends AbstractActor {
 
     private final SourceCodeQuality codeQuality;
-    private ReceiveMessage receiveMesageBehaviour;
+    //private ReceiveMessage receiveMessageBehaviour;
 
     public SourceCode() {
         this.codeQuality = new SourceCodeQuality(InitialiseVariable.CodeQuality);
@@ -44,8 +44,8 @@ public class SourceCode extends AbstractActor {
     @Override
     protected void setup() {
         welcomMessage();
-        receiveMesageBehaviour = new ReceiveMessage(this);
-        addBehaviour(receiveMesageBehaviour);
+        receiveMessageBehaviour = new ReceiveMessage(this);
+        addBehaviour(receiveMessageBehaviour);
     }
 
     @Override
@@ -119,7 +119,7 @@ public class SourceCode extends AbstractActor {
          * <p>
          * The change in code quality is normally 10th of the change size and it
          * is by default 1 if the change size is between 1 and 9. This method
-         * aso randomises if the the change in code quality will be positive or
+         * also randomises if the change in code quality will be positive or
          * negative.</p>
          * <p>
          * If the return value is negative then Source code will be refactor

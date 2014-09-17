@@ -27,7 +27,7 @@ import abstracts.AbstractMessageReceiver;
  */
 public class SystemOwners extends AbstractActor {
 
-    private ReceiveMessage receiveMessageBehaviour;
+    //private ReceiveMessage receiveMessageBehaviour;
 
     @Override
     protected void setup() {

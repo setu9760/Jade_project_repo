@@ -66,10 +66,12 @@ public class jadeBootThread extends Thread {
     public void run() {
         try {
             main.invoke(null, new Object[]{params});
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-            Logger.getLogger(jadeBootThread.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException | 
+                IllegalArgumentException | 
+                InvocationTargetException ex) {
+            Logger.getLogger(jadeBootThread.class.getName()).log(Level.SEVERE, 
+                    null, ex);
         }
-
     }
 
 }

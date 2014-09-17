@@ -29,8 +29,6 @@ import utils.ChangeRequirement;
  */
 public class Developer extends AbstractActor {
 
-    ReceiveMessage receiveMessageBehaviour;
-
     @Override
     protected void setup() {
         welcomMessage();
@@ -134,7 +132,7 @@ public class Developer extends AbstractActor {
 
             } else if (isInBetween(changeRequestSize, 81, 100)) {
                 //If change size is between 81 and 100 it is considered
-                //exponantial and there fore there are only 20% chances 
+                //exponential and therefore there are only 20% chances 
                 //of it being accepted randomly.
                 rand = random.nextInt((MAX - MIN) + 1) + MIN;
 
