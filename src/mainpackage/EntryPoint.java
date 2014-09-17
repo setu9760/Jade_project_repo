@@ -20,6 +20,8 @@ package mainpackage;
 import utils.InitialiseVariable;
 
 /**
+ * As the name suggests this class is the entry point to the program. The main
+ * method of this class is called to start the program.
  *
  * @author Desai
  */
@@ -29,5 +31,4 @@ public class EntryPoint {
         InitialiseVariable frame = new InitialiseVariable();
         frame.setVisible(true);
     }
-
 }

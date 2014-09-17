@@ -24,6 +24,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
+ * As the name suggests this class is used to initialise the
+ * variables/parameters necessary for the simulations model to run. This class
+ * invokes a JFrame which gives the user option to choose four different
+ * parameters.
  *
  * @author Desai
  */

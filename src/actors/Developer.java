@@ -24,6 +24,7 @@ import jade.core.Agent;
 import utils.ChangeRequirement;
 
 /**
+ * This is a Developer agent class.
  *
  * @author Desai
  */
@@ -37,8 +38,18 @@ public class Developer extends AbstractActor {
 
     }
 
+    /**
+     * The receiveMessage class of Developer agent. This class implements the
+     * ChangeAcceptancePolicyFetcher which decides whether the change should be
+     * accepted or not.
+     */
     private class ReceiveMessage extends AbstractMessageReceiver implements ChangeAcceptancePolicyFetcher {
 
+        /**
+         * Default constructor.
+         *
+         * @param agent
+         */
         public ReceiveMessage(Agent agent) {
             super(agent);
         }
@@ -107,27 +118,24 @@ public class Developer extends AbstractActor {
                 //If change size is between 1 and 20 there are
                 // 80% chances of it being accepted randomly.
                 rand = random.nextInt((MAX - MIN) + 1) + MIN;
-
                 return (isInBetween(rand, 1, 8)) ? 1 : 0;
 
             } else if (isInBetween(changeRequestSize, 21, 40)) {
                 //If change size is between 21 and 40 there are
                 //60% chances of it being accepted randomly.
                 rand = random.nextInt((MAX - MIN) + 1) + MIN;
-
                 return (isInBetween(rand, 1, 6)) ? 1 : 0;
 
             } else if (isInBetween(changeRequestSize, 41, 60)) {
                 //If change size is between 41 and 60 there are
                 //50% chances of it being accepted randomly.
                 rand = random.nextInt((MAX - MIN) + 1) + MIN;
-
                 return (isInBetween(rand, 1, 5)) ? 1 : 0;
+
             } else if (isInBetween(changeRequestSize, 61, 80)) {
                 //If change size is between 61 and 80 there are 
                 //only 40% chances of it being accepted randomly.
                 rand = random.nextInt((MAX - MIN) + 1) + MIN;
-
                 return (isInBetween(rand, 1, 4)) ? 1 : 0;
 
             } else if (isInBetween(changeRequestSize, 81, 100)) {
@@ -135,13 +143,9 @@ public class Developer extends AbstractActor {
                 //exponential and therefore there are only 20% chances 
                 //of it being accepted randomly.
                 rand = random.nextInt((MAX - MIN) + 1) + MIN;
-
                 return (isInBetween(rand, 1, 2)) ? 1 : 0;
             }
-
             return 0;
         }
-
     }
-
 }

@@ -27,8 +27,6 @@ import abstracts.AbstractMessageReceiver;
  */
 public class SystemOwners extends AbstractActor {
 
-    //private ReceiveMessage receiveMessageBehaviour;
-
     @Override
     protected void setup() {
         welcomMessage();
@@ -51,14 +49,12 @@ public class SystemOwners extends AbstractActor {
                 switch (message) {
                     /**
                      * Do something here if system owner receives particular
-                     * message.
+                     * message. This functionality is not completely
+                     * implemented.
                      */
-
                 }
             }
             aclmessage = null;
         }
-
     }
-
 }

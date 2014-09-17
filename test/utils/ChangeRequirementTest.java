@@ -23,6 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
+ * Test class for ChangeRequirement class.
  *
  * @author S Desai
  */
@@ -71,23 +72,28 @@ public class ChangeRequirementTest {
     public void testHashCode_Equals() {
         System.out.println("hashCode and equals");
 
+        // Testing against null object
         assertFalse(changeRequirement.equals(null));
         assertTrue(changeRequirement.hashCode() != 0);
 
+        // Testing against incompitable type of object. 
         assertFalse(changeRequirement.equals("Hello"));
         assertFalse(changeRequirement.hashCode() == "Hello".hashCode());
 
+        // Testing the object to its own
         assertTrue(changeRequirement.equals(changeRequirement));
         assertTrue(changeRequirement.hashCode() == changeRequirement.hashCode());
 
+        //Testing the object to similar object
         @SuppressWarnings("LocalVariableHidesMemberVariable")
         ChangeRequirement changeRequirement = new ChangeRequirement(10);
         assertTrue(changeRequirement.equals(this.changeRequirement));
         assertTrue(changeRequirement.hashCode() == this.changeRequirement.hashCode());
 
+        // Testing the object to same type of but with different member 
+        // value object.
         changeRequirement = new ChangeRequirement(20);
         assertFalse(changeRequirement.equals(this.changeRequirement));
         assertFalse(changeRequirement.hashCode() == this.changeRequirement.hashCode());
     }
-
 }

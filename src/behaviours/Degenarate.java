@@ -22,6 +22,10 @@ import jade.core.behaviours.Behaviour;
 import utils.SystemSize;
 
 /**
+ * This behaviour class is applied to the SoftwareSystem agent. This behaviour
+ * is used when the size of the software system needs to be reduces.
+ * <p>
+ * <i>However this behaviour is not used currently in the mode</i></p>
  *
  * @author Desai
  */

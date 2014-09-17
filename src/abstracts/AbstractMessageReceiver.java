@@ -27,6 +27,20 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * This is an abstract class which extends CyclicBehaviour class form the jade
+ * library. This class implements the members and methods which are necessary
+ * for all or some behaviours in this model. All the agent's receiveMessage
+ * behaviour must extend this class. This method has an abstract method action()
+ * which must be implemented by the developer. The implementation would
+ * generally consist of action to be taken when an agent receives message.
+ * <p>
+ * This class consists of many final Strings which the agents might receive as
+ * message but for future implementation more strings could be added to this
+ * class. This class also has implementation to many other useful methods</p>
+ * <p>
+ * <i>All the agent's receiveMessage behaviour must extend this class otherwise
+ * the developer will not be able to take advantage of methods from this
+ * class.</i></p>
  *
  * @author Desai
  */
@@ -162,13 +176,31 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
     protected ACLMessage aclmessage;
     protected String message;
 
+    /**
+     * Default constructor which requires the corresponding agent to be passed
+     * as an argument.
+     *
+     * @param agent The agent to which this behaviour belongs.
+     */
     public AbstractMessageReceiver(Agent agent) {
         super(agent);
     }
 
+    /**
+     * Abstract method for which the implementation is left to the developer.
+     * Generally would consist of action() to be take upon the agent receiving a
+     * message.
+     */
     @Override
     public abstract void action();
 
+    /**
+     * This method is developed to simply print the message in the consol or
+     * terminal during runtime.
+     *
+     * @param sender Sender of the message
+     * @param message String content of the message
+     */
     protected final void printMessage(AID sender, String message) {
 
         System.out.println(myAgent.getLocalName() + " received a message from " + sender.getLocalName());
@@ -176,11 +208,18 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
 
     }
 
+    /**
+     * This method converts ACLMessage to a String message.
+     */
     protected final void getMessageFromACL() {
         message = aclmessage.getContent().toLowerCase(locale);
         printMessage(aclmessage.getSender(), message);
     }
 
+    /**
+     * @return Checks the aclmessage for null if not it returns the String
+     * representation of message.
+     */
     public final String returnContentMessage() {
         if (aclmessage != null) {
             return message;
@@ -209,7 +248,6 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
         aclmessage.setContent(messageContent);
         aclmessage.addReceiver(receiver);
         myAgent.send(aclmessage);
-
     }
 
     /**
@@ -273,7 +311,6 @@ public abstract class AbstractMessageReceiver extends CyclicBehaviour {
         } catch (InterruptedException ex) {
             Logger.getLogger(AbstractMessageReceiver.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     /**

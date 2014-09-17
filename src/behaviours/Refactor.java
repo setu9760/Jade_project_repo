@@ -22,6 +22,9 @@ import jade.core.behaviours.Behaviour;
 import utils.SourceCodeQuality;
 
 /**
+ * THis is a Refactoring behaviour class. This behaviour is applied to the
+ * SourceCode agent when the RandomizeCodeQualityFether policy results in
+ * increasing the code quality.
  *
  * @author Desai
  */
@@ -31,14 +34,15 @@ public class Refactor extends Behaviour {
      *
      */
     private final SourceCodeQuality codeQuality;
-
     private boolean done = false;
     private int RefactorBy = 0;
 
     /**
+     * This constructor is used when the code quality is to be increased by two
+     * units.
      *
-     * @param agent
-     * @param codeQuality
+     * @param agent The agent to which this behaviour belongs.
+     * @param codeQuality codeQuality Object
      */
     public Refactor(Agent agent, SourceCodeQuality codeQuality) {
         super(agent);
@@ -46,10 +50,13 @@ public class Refactor extends Behaviour {
     }
 
     /**
+     * This constructor is used when the codeQuality is to be increased by a
+     * pre-decide number rather than two units.
      *
-     * @param agent
-     * @param CodeQuality
-     * @param RefactorBy
+     * @param agent The agent to which this behaviour belongs
+     * @param CodeQuality codeQuality agent
+     * @param RefactorBy integer value by which the codeQuality is to be
+     * increased.
      */
     public Refactor(Agent agent, SourceCodeQuality CodeQuality, int RefactorBy) {
         super(agent);
@@ -60,7 +67,6 @@ public class Refactor extends Behaviour {
     @Override
     public void action() {
         while (!done()) {
-
             if (RefactorBy != 0) {
                 codeQuality.increaseQuality(RefactorBy);
                 System.out.println("Code Quality increased by: " + RefactorBy);
@@ -77,5 +83,4 @@ public class Refactor extends Behaviour {
     public boolean done() {
         return done;
     }
-
 }

@@ -23,15 +23,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * The JADE framework requires it's main class to be invoked to start the
+ * container window. It also requires that all the agent names and agents paths
+ * are passed to is as arguments in order for them to be started in the main
+ * container.
+ * <p>
+ * This class uses java reflection API to find the main class form library and
+ * invoke its main method. it also passes the agent names and paths as argument
+ * string to it.</p>
  *
  * @author Desai
  */
 public class jadeBootThread extends Thread {
 
     /**
+     * The name of the class to be called.
      */
     private final String jadeBoot_CLASS_NAME = "jade.Boot";
     /**
+     * The name of the method to be invoked.
      */
     private final String MAIN_METHOD_NAME = "main";
     /**
@@ -56,6 +66,14 @@ public class jadeBootThread extends Thread {
      */
     private final String[] params;
 
+    /**
+     * This constructor initialises the variables and if unsuitable variables
+     * are passes it throws one of the following error.
+     *
+     * @throws ClassNotFoundException
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     */
     public jadeBootThread() throws ClassNotFoundException, SecurityException, NoSuchMethodException {
         secondClass = Class.forName(jadeBoot_CLASS_NAME);
         main = secondClass.getMethod(MAIN_METHOD_NAME, String[].class);
@@ -66,12 +84,11 @@ public class jadeBootThread extends Thread {
     public void run() {
         try {
             main.invoke(null, new Object[]{params});
-        } catch (IllegalAccessException | 
-                IllegalArgumentException | 
+        } catch (IllegalAccessException |
+                IllegalArgumentException |
                 InvocationTargetException ex) {
-            Logger.getLogger(jadeBootThread.class.getName()).log(Level.SEVERE, 
+            Logger.getLogger(jadeBootThread.class.getName()).log(Level.SEVERE,
                     null, ex);
         }
     }
-
 }

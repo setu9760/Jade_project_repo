@@ -24,21 +24,27 @@ import jade.lang.acl.ACLMessage;
 import utils.SourceCodeQuality;
 
 /**
+ * This is a Defactoring behaviour class. This behaviour is applied to
+ * SourceCode agent when the RandomizeCodeQualityPolicyFetcher policy results in
+ * reducing the code quality.
  *
  * @author Desai
  */
 public class Defactor extends Behaviour {
 
     /**
+     *
      */
     private final SourceCodeQuality codeQuality;
     private boolean done = false;
     private int DefactorBy = 0;
 
     /**
+     * This constructor is used when the code quality is to be reduced by one
+     * unit.
      *
-     * @param agent
-     * @param codeQuality
+     * @param agent The agent to which this behaviour belongs.
+     * @param codeQuality codeQuality object
      */
     public Defactor(Agent agent, SourceCodeQuality codeQuality) {
         super(agent);
@@ -46,10 +52,13 @@ public class Defactor extends Behaviour {
     }
 
     /**
+     * This constructor is used when the codeQuality is to be reduced by a
+     * pre-decided number rather then one unit.
      *
-     * @param agent
-     * @param codeQuality
-     * @param DefactorBy
+     * @param agent The agent to which this behaviour belongs.
+     * @param codeQuality codeQuaity agent
+     * @param DefactorBy integer value by which the codeQuality is to be
+     * reduced.
      */
     public Defactor(Agent agent, SourceCodeQuality codeQuality, int DefactorBy) {
         super(agent);
@@ -57,13 +66,9 @@ public class Defactor extends Behaviour {
         this.DefactorBy = DefactorBy;
     }
 
-    /**
-     *
-     */
     @Override
     public void action() {
         while (!done()) {
-
             if (!codeQuality.isBelowZero()) {
                 if (this.DefactorBy != 0) {
                     codeQuality.decreaseQuality(DefactorBy);
@@ -87,5 +92,4 @@ public class Defactor extends Behaviour {
     public boolean done() {
         return done;
     }
-
 }

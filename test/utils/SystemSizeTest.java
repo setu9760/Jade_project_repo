@@ -29,7 +29,6 @@ import static org.junit.Assert.*;
 public class SystemSizeTest {
 
     public SystemSizeTest() {
-
     }
     SystemSize systemSize;
     int exp;
@@ -138,5 +137,4 @@ public class SystemSizeTest {
         assertFalse(systemSize.equals(this.systemSize));
         assertFalse(systemSize.hashCode() == this.systemSize.hashCode());
     }
-
 }

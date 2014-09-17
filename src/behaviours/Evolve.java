@@ -22,6 +22,17 @@ import jade.core.behaviours.Behaviour;
 import utils.SystemSize;
 
 /**
+ * This behaviour class is applied to the SoftwareSystem agent. This behaviour
+ * can be used when the software size needs to be increased.
+ * <p>
+ * <i>Currently this behaviour is used in two different ways in this model;
+ * <br>
+ * <br><b>1.</b> To increase the software size in determinate manner (i.e. By
+ * one unit in each ContinuousEvolution request)
+ * <br>
+ * <br><b>2.</b>To increase the software size in indeterminate manner (i.e. By
+ * an integer value other than one in each succesfull change requirement
+ * request)</i>
  *
  * @author Desai
  */
@@ -79,5 +90,4 @@ public class Evolve extends Behaviour {
     public boolean done() {
         return done;
     }
-
 }

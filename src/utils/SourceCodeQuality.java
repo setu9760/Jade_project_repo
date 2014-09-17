@@ -27,6 +27,10 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
+ * This is a class that is used as one of the two resulting parameters. This
+ * object would generally belong to SourceCode agent (unless future developments
+ * change its definition).
+ *
  *
  * @author Desai
  */
@@ -38,9 +42,14 @@ public final class SourceCodeQuality implements Serializable {
 
     private Date date;
     /**
+     * The map to keep record of change in the sourceCodeQuality. Each changing
+     * value will be stored in the key-value Map where key will be time-stamp
+     * and value will be corresponding CodeQuality at that time.
      */
     private final Map<String, String> records;
     /**
+     * dateFormatter object used to format the date in simplified readable
+     * version.
      */
     private final DateFormat dateFormatter;
 
@@ -166,6 +175,11 @@ public final class SourceCodeQuality implements Serializable {
         Runtime.getRuntime().addShutdownHook(thread);
     }
 
+    /**
+     * overridden toString() method.
+     *
+     * @return String representation of this object.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -174,6 +188,11 @@ public final class SourceCodeQuality implements Serializable {
         return sb.toString();
     }
 
+    /**
+     * overridden hashCode() method; mainly used for testing purposes.
+     *
+     * @return hashCode value of this object.
+     */
     @Override
     public int hashCode() {
         return new HashCodeBuilder(7, 31)
@@ -181,6 +200,13 @@ public final class SourceCodeQuality implements Serializable {
                 .toHashCode();
     }
 
+    /**
+     * overridden equals() method; mainly used for testing purposes.
+     *
+     * @param object the object to be checked for equals
+     * @return true if this is equals to the object passed in parameter, false
+     * otherwise.
+     */
     @Override
     public boolean equals(Object object) {
         if (!(object instanceof SourceCodeQuality)) {
@@ -194,5 +220,4 @@ public final class SourceCodeQuality implements Serializable {
                 .append(CodeQuality, quality.CodeQuality)
                 .isEquals();
     }
-
 }

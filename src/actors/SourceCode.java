@@ -34,9 +34,15 @@ import utils.SourceCodeQuality;
  */
 public class SourceCode extends AbstractActor {
 
+    /**
+     * The resulting parameter object SourceCodeQuality. This object is
+     * initialised when this agent is invoked in the system.
+     */
     private final SourceCodeQuality codeQuality;
-    //private ReceiveMessage receiveMessageBehaviour;
 
+    /**
+     * Default Constructor.
+     */
     public SourceCode() {
         this.codeQuality = new SourceCodeQuality(InitialiseVariable.CodeQuality);
     }
@@ -48,14 +54,31 @@ public class SourceCode extends AbstractActor {
         addBehaviour(receiveMessageBehaviour);
     }
 
+    /**
+     * This method is overridden in this class because the simulations results
+     * needs to be recorded. Whenever this agent terminated this method is
+     * called automatically by the framework, and at that time the records are
+     * written to the file.
+     */
     @Override
     protected void takeDown() {
         codeQuality.writeToFile();
         super.takeDown();
     }
 
+    /**
+     * The ReceiveMessage behaviour class of the SourceCode agent. This class
+     * implements RandomizeCodeQualityPolicyFetcher which randomises the change
+     * in code quality. this randomisation depends upon the change in
+     * requirement size.
+     */
     private class ReceiveMessage extends AbstractMessageReceiver implements RandomizeCodeQualityPolicyFetcher {
 
+        /**
+         * Default constructor.
+         *
+         * @param agent
+         */
         public ReceiveMessage(Agent agent) {
             super(agent);
         }

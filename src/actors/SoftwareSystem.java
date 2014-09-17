@@ -28,14 +28,21 @@ import utils.InitialiseVariable;
 import utils.SystemSize;
 
 /**
+ * SoftwareSystem agent class.
  *
  * @author Desai
  */
 public class SoftwareSystem extends AbstractActor {
 
-    public SystemSize size;
-    //private ReceiveMessage receiveMessageBehaviour;
+    /**
+     * The resulting parameter object SystemSize. This object is initialised
+     * when the SoftwareSystem agent is invoked.
+     */
+    private final SystemSize size;
 
+    /**
+     * Default constructor.
+     */
     public SoftwareSystem() {
         this.size = new SystemSize(InitialiseVariable.SoftSize);
     }
@@ -44,14 +51,16 @@ public class SoftwareSystem extends AbstractActor {
     protected void setup() {
         welcomMessage();
         receiveMessageBehaviour = new ReceiveMessage(this);
-        /**
-         * Adding a cyclic behaviour to the agent which detects incoming
-         * messages.
-         */
         addBehaviour(receiveMessageBehaviour);
 
     }
 
+    /**
+     * This method is overridden in this class because the simulations results
+     * needs to be recorded. Whenever this agent terminated this method is
+     * called automatically by the framework, and at that time the records are
+     * written to the file.
+     */
     @Override
     protected void takeDown() {
         size.writeToFile();
@@ -108,7 +117,5 @@ public class SoftwareSystem extends AbstractActor {
             }
             aclmessage = null;
         }
-
     }
-
 }

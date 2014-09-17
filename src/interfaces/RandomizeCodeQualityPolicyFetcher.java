@@ -38,5 +38,4 @@ public interface RandomizeCodeQualityPolicyFetcher {
      * @return the number by which the code quality will be affected.
      */
     public int RandomizeCodeQialityPolicy(int changeSize);
-
 }

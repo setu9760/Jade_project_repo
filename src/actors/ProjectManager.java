@@ -22,12 +22,11 @@ import jade.core.Agent;
 import abstracts.AbstractMessageReceiver;
 
 /**
+ * This is a ProjectManager agent class.
  *
  * @author Desai
  */
 public class ProjectManager extends AbstractActor {
-
-    //private ReceiveMessage receiveMessageBehaviour;
 
     @Override
     protected void setup() {
@@ -36,6 +35,9 @@ public class ProjectManager extends AbstractActor {
         addBehaviour(receiveMessageBehaviour);
     }
 
+    /**
+     * The receiveMessage class of ProjectManager agent.
+     */
     private class ReceiveMessage extends AbstractMessageReceiver {
 
         public ReceiveMessage(Agent agent) {
@@ -68,7 +70,5 @@ public class ProjectManager extends AbstractActor {
             }
             aclmessage = null;
         }
-
     }
-
 }

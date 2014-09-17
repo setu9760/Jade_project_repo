@@ -18,15 +18,18 @@
 package interfaces;
 
 /**
+ * This interface is implemented with intension to give the developer freedom to
+ * implement the policy as per the requirement. Currently in this model this
+ * interface has implementation in Developer agent.
  *
  * @author Desai
  */
 public interface ChangeAcceptancePolicyFetcher {
 
     /**
-     * @param changeRequestSize
-     * @return
+     * @param changeRequestSize The size of change request.
+     * @return This value depends upon the developer's policy
+     * implementation.
      */
     public int ChangeAcceptancePolicy(int changeRequestSize);
-
 }

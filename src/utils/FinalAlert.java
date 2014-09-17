@@ -20,6 +20,11 @@ package utils;
 import javax.swing.JOptionPane;
 
 /**
+ * This class is developed to show a final dialog box to the user. This class
+ * implements runnable so that it could be ran on separate thread.
+ * <p>
+ * This class contains a showFinalAlert() static method which is called from the
+ * run() method of this class. </p>
  *
  * @author S Desai
  */
@@ -28,8 +33,12 @@ public class FinalAlert implements Runnable {
     public static JOptionPane finalAlert;
     private static boolean isVisible = false;
 
+    /**
+     * This method checks if the windows is already visible. It it is not
+     * already visible in displays a alert dialog to inform the user that
+     * simulation cycles have been completed.
+     */
     public static void showFinalAlert() {
-
         if (!isVisible) {
             JOptionPane.showConfirmDialog(null, "All Iterations complete", "DONE !!!", JOptionPane.OK_CANCEL_OPTION);
             isVisible = true;
@@ -40,5 +49,4 @@ public class FinalAlert implements Runnable {
     public void run() {
         showFinalAlert();
     }
-
 }

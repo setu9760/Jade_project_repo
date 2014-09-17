@@ -32,8 +32,6 @@ import utils.InitialiseVariable;
  */
 public class User extends AbstractActor {
 
-    //private ReceiveMessage receiveMessageBehaviour;
-
     @Override
     protected void setup() {
         welcomMessage();
@@ -41,6 +39,9 @@ public class User extends AbstractActor {
         addBehaviour(receiveMessageBehaviour);
     }
 
+    /**
+     * The receiveMessage behaviour of the user agent.
+     */
     private class ReceiveMessage extends AbstractMessageReceiver {
 
         public ReceiveMessage(Agent agent) {
@@ -71,13 +72,20 @@ public class User extends AbstractActor {
                         doSuspend();
                         break;
                 }
-
             }
             aclmessage = null;
         }
 
+        /**
+         * This is a continuousEvolution behaviour of the user agent. Using this
+         * behaviour the continuous evolution requests are sent by the user
+         * agent. This behaviour class uses the number of cycles parameter set
+         * by the user at the start of simulation.
+         */
         private class ContinuousEvolvution extends Behaviour {
 
+            // Number of cycles variable.
+            // This is set by the user at the start of the simulation.
             private int numOfCycles = InitialiseVariable.numOfCycles;
 
             public ContinuousEvolvution(Agent agent) {
@@ -86,14 +94,12 @@ public class User extends AbstractActor {
 
             @Override
             public void action() {
-
                 try {
                     Thread.sleep(InitialiseVariable.timeInterval);
                     sendMessage(MANAGER_AID, EVOLVE, REQUEST_MESSAGE_TYPE);
                     numOfCycles--;
-
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(actors.User.ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(User.ReceiveMessage.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 
@@ -103,8 +109,15 @@ public class User extends AbstractActor {
             }
         }
 
+        /**
+         * This is continousChangeRequest behaviour of the user agent. using
+         * this behaviour the continuous change requests are sent by the user
+         * agent. This behaviour class uses the number of cycles parameter set
+         * by the user at the start of simulation.
+         */
         private class ContinuousChageRequest extends Behaviour {
 
+            // Number of cycles variable set at the start of simulation.
             private int numOfCycles = InitialiseVariable.numOfCycles;
 
             public ContinuousChageRequest(Agent agent) {
@@ -131,8 +144,6 @@ public class User extends AbstractActor {
                 }
                 return numOfCycles == 0;
             }
-
         }
     }
-
 }

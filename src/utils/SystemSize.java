@@ -27,6 +27,9 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
+ * This is a class that is used as one of the two resulting parameters. this
+ * object would generally belong to SoftwareSystem agent (unless future
+ * developments change its definition).
  *
  * @author Desai
  */
@@ -37,9 +40,16 @@ public final class SystemSize implements Serializable {
     private int SoftSize;
 
     private Date date;
-
+    /**
+     * The map to keep record of change in systemSize. each changing value will
+     * be stored in the key-value map where key will be time-stamp and value
+     * will be corresponding softwareSize at that time.
+     */
     private final Map<String, String> records;
-
+    /**
+     * dateFortter object used to format the date in simplified readable
+     * version.
+     */
     private final DateFormat dateFormatter;
 
     /**
@@ -127,6 +137,11 @@ public final class SystemSize implements Serializable {
         Runtime.getRuntime().addShutdownHook(thread);
     }
 
+    /**
+     * overridden toString() method.
+     *
+     * @return String representation of this object.
+     */
     @Override
     public String toString() {
         return new StringBuilder()
@@ -135,6 +150,11 @@ public final class SystemSize implements Serializable {
                 .toString();
     }
 
+    /**
+     * overridden hashCode() method; mainly used for testing purposes.
+     *
+     * @return hasCode value of this object.
+     */
     @Override
     public int hashCode() {
         return new HashCodeBuilder(7, 31)
@@ -142,6 +162,12 @@ public final class SystemSize implements Serializable {
                 .toHashCode();
     }
 
+    /**
+     * overridden equals() method; mainly used for testing purposes.
+     *
+     * @param object the object to be checked for equals
+     * @return true if this is equals to the object passed as parameter.
+     */
     @Override
     public boolean equals(Object object) {
         if (!(object instanceof SystemSize)) {
@@ -155,5 +181,4 @@ public final class SystemSize implements Serializable {
                 .append(SoftSize, size.SoftSize)
                 .isEquals();
     }
-
 }

@@ -40,43 +40,37 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
+ * This class is implemented to write the simulation results records to excel
+ * file. This method implements runnable which makes its execution easy as a
+ * thread.
  *
  * @author Desai
  */
 public class RecordsWriter implements Runnable {
 
     private File file;
-
     private FileOutputStream fileOutputStream;
-
     private HSSFWorkbook workbook = null;
-
     private HSSFSheet worksheet = null;
-
     private Row row;
-
     private Cell cell;
-
     private final Map<String, String> records;
-
     private final String FILE;
-
     private final String WORKSHEET1;
-
     private final String WORKSHEET2;
-
     private final Date date;
-
     DateFormatUtils d = new DateFormatUtils();
-
     private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM--HH.mm.ss");
-
     public static final String RECORD_NAME_SOFTSIZE = "SoftwareSize";
-
     public static final String RECORD_NAME_CODEQUALITY = "CodeQuality";
-
     public final File DIRECTORY;
 
+    /**
+     * This default constructor initialises the members of this object.
+     *
+     * @param records the map of records to be written
+     * @param recordName the name of the resulting parameter being recorded
+     */
     public RecordsWriter(Map<String, String> records, String recordName) {
 
         DIRECTORY = new File(System.getProperty("user.home") + "/results");
@@ -96,7 +90,6 @@ public class RecordsWriter implements Runnable {
                 FILE = "raw/unknown.xls";
                 break;
         }
-        //this.WORKSHEET1 = "Record @ " + dateFormatter.format(date);
         this.WORKSHEET1 = "Sheet1";
         this.WORKSHEET2 = "Sheet2";
     }
@@ -171,11 +164,14 @@ public class RecordsWriter implements Runnable {
                 }
             }
         }
-
     }
 
+    /**
+     * This method is used to give styling to the excel worksheet cells.
+     *
+     * @return HSSFCellStyle object.
+     */
     private HSSFCellStyle style() {
-
         HSSFCellStyle style = workbook.createCellStyle();
         style.setAlignment(CellStyle.ALIGN_CENTER);
         Font font = workbook.createFont();

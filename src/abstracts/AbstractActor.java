@@ -21,6 +21,15 @@ import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 
 /**
+ * This is a abstract class which extends the Agent class from the jade library.
+ * This class implements the members and methods which are necessary for all or
+ * some agents in this model. It also has an abstract method setup(); for which
+ * the implementation is left to the developer. This gives the developer freedom
+ * to implement the agent as their preference and also reduces the repeating
+ * code.
+ * <p>
+ * <i>All the agents in this model <b>must</b> extend this class otherwise they
+ * will not be able to take benefit of the methods from this class.</i></p>
  *
  * @author S Desai
  */
@@ -54,7 +63,10 @@ public abstract class AbstractActor extends Agent {
         System.out.println("Agent: " + getLocalName() + " is created.");
     }
 
+    /**
+     * This method must be implemented by the developer in any of the agent of
+     * this model.
+     */
     @Override
     protected abstract void setup();
-
 }
